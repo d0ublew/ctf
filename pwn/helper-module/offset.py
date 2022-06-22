@@ -1,6 +1,7 @@
 from pwn import *
 from glob import glob
 import os
+from binascii import unhexlify
 
 def offset(io):
     io.sendlineafter(b"> ", cyclic(0x1000))
@@ -11,4 +12,5 @@ def offset(io):
     for file in glob("./core.*"):
         os.remove(file)
 
-    return cyclic_find(core.fault_addr)
+    fault = unhexlify(hex(core.fault_addr)[2:])
+    return cyclic_find(fault[:4])
