@@ -1,3 +1,5 @@
 .gdb_history
 core
 __pycache__/
+pwn/pwn.college/key
+pwn/pwn.college/key.pub
