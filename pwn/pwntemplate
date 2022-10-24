@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [[ "$#" < 1 ]]; then
+    echo "No binary file is provided"
+    exit 1
+fi
+
+cmd="pwn template $1"
+
+if [[ "$#" > 1 ]]; then
+    cmd="${cmd} --host ${2} --port ${3}"
+fi
+
+`${cmd} > solve.py`
+echo "File created: solve.py"
