@@ -1,3 +1,6 @@
 [submodule "nahamcon-eu-ctf-2022"]
 	path = nahamcon-eu-ctf-2022
 	url = https://github.com/d0UBleW/nahamcon-eu-ctf-2022.git
+[submodule "htb-uni-22"]
+	path = htb-uni-22
+	url = https://github.com/d0UBleW/htb-uni-ctf-22-writeup.git
