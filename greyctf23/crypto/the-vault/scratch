@@ -1,0 +1,4 @@
+first
+second
+
+enc(nonce, first) ^ enc(nonce, second) ^ thief
