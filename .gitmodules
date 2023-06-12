@@ -4,3 +4,6 @@
 [submodule "htb-uni-22"]
 	path = htb-uni-22
 	url = https://github.com/d0UBleW/htb-uni-ctf-22-writeup.git
+[submodule "ropemporium"]
+	path = ropemporium
+	url = https://github.com/d0ublew/ropemporium-writeup
