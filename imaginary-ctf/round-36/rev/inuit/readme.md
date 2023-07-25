@@ -1,0 +1,3 @@
+# Notes
+
+compiled with `nuitka`
