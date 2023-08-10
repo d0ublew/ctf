@@ -29,3 +29,12 @@ cat /sys/module/<name>/sections/.text
 ```sh
 (gdb) add-symbol-file </path/to/module.ko> <.text address>
 ```
+
+## Finding ROP Gadget
+
+Use `-u` and try to use the lower address ones.
+Higher address gadgets sometimes fail.
+
+```sh
+ropr -u ./vmlinux | grep ': pop rdi; ret;' | head
+```
