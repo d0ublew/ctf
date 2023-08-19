@@ -1,0 +1,11 @@
+Filesystem     1K-blocks    Used Available Use% Mounted on
+udev              963088       0    963088   0% /dev
+tmpfs             201844    1212    200632   1% /run
+/dev/sda2       20463184 5363724  14034656  28% /
+tmpfs            1009200       0   1009200   0% /dev/shm
+tmpfs               5120       0      5120   0% /run/lock
+tmpfs            1009200       0   1009200   0% /sys/fs/cgroup
+/dev/loop0         63488   63488         0 100% /snap/core20/1611
+/dev/loop2         69504   69504         0 100% /snap/lxd/22753
+/dev/loop1         48128   48128         0 100% /snap/snapd/16292
+tmpfs             201840       0    201840   0% /run/user/1000

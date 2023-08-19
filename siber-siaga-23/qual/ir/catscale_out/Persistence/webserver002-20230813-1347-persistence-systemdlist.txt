@@ -1,0 +1,1564 @@
+#  SPDX-License-Identifier: LGPL-2.1+
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=Wait for Network to be Configured
+Documentation=man:systemd-networkd-wait-online.service(8)
+DefaultDependencies=no
+Conflicts=shutdown.target
+Requires=systemd-networkd.service
+After=systemd-networkd.service
+Before=network-online.target shutdown.target
+
+[Service]
+Type=oneshot
+ExecStart=/lib/systemd/systemd-networkd-wait-online
+RemainAfterExit=yes
+
+[Install]
+WantedBy=network-online.target
+[Unit]
+Description=GRUB failed boot detection
+After=local-fs.target
+After=grub-common.service
+After=sleep.target
+ConditionPathExists=/boot/grub/grub.cfg
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/grub-editenv /boot/grub/grubenv unset initrdfail
+ExecStart=/usr/bin/grub-editenv /boot/grub/grubenv unset prev_entry
+TimeoutSec=0
+
+[Install]
+WantedBy=multi-user.target rescue.target emergency.target sleep.target
+[Unit]
+Description=System Logging Service
+Requires=syslog.socket
+Documentation=man:rsyslogd(8)
+Documentation=https://www.rsyslog.com/doc/
+
+[Service]
+Type=notify
+ExecStart=/usr/sbin/rsyslogd -n -iNONE
+StandardOutput=null
+Restart=on-failure
+
+# Increase the default a bit in order to allow many simultaneous
+# files to be monitored, we might need a lot of fds.
+LimitNOFILE=16384
+
+[Install]
+WantedBy=multi-user.target
+Alias=syslog.service
+[Unit]
+Description=Initial cloud-init job (metadata service crawler)
+DefaultDependencies=no
+Wants=cloud-init-local.service
+Wants=sshd-keygen.service
+Wants=sshd.service
+After=cloud-init-local.service
+After=systemd-networkd-wait-online.service
+After=networking.service
+Before=network-online.target
+Before=sshd-keygen.service
+Before=sshd.service
+Before=sysinit.target
+Before=shutdown.target
+Conflicts=shutdown.target
+Before=systemd-user-sessions.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/cloud-init init
+RemainAfterExit=yes
+TimeoutSec=0
+
+# Output needs to appear in instance console output
+StandardOutput=journal+console
+
+[Install]
+WantedBy=cloud-init.target
+[Unit]
+Description=Initial cloud-init job (pre-networking)
+DefaultDependencies=no
+Wants=network-pre.target
+After=hv_kvp_daemon.service
+After=systemd-remount-fs.service
+Before=NetworkManager.service
+Before=network-pre.target
+Before=shutdown.target
+Before=sysinit.target
+Conflicts=shutdown.target
+RequiresMountsFor=/var/lib/cloud
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/cloud-init init --local
+RemainAfterExit=yes
+TimeoutSec=0
+
+# Output needs to appear in instance console output
+StandardOutput=journal+console
+
+[Install]
+WantedBy=cloud-init.target
+[Unit]
+Description=Execute cloud user/final scripts
+After=network-online.target cloud-config.service rc-local.service
+After=multi-user.target
+Before=apt-daily.service
+Wants=network-online.target cloud-config.service
+
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/cloud-init modules --mode=final
+RemainAfterExit=yes
+TimeoutSec=0
+KillMode=process
+TasksMax=infinity
+
+
+# Output needs to appear in instance console output
+StandardOutput=journal+console
+
+[Install]
+WantedBy=cloud-init.target
+[Unit]
+Description=Apply the settings specified in cloud-config
+After=network-online.target cloud-config.target
+After=snapd.seeded.service
+Wants=network-online.target cloud-config.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/cloud-init modules --mode=config
+RemainAfterExit=yes
+TimeoutSec=0
+
+# Output needs to appear in instance console output
+StandardOutput=journal+console
+
+[Install]
+WantedBy=cloud-init.target
+[Unit]
+Description=Authentication service for virtual machines hosted on VMware
+Documentation=http://github.com/vmware/open-vm-tools
+ConditionVirtualization=vmware
+DefaultDependencies=no
+After=systemd-remount-fs.service systemd-tmpfiles-setup.service
+After=apparmor.service
+PartOf=open-vm-tools.service
+
+[Service]
+ExecStart=/usr/bin/VGAuthService
+TimeoutStopSec=5
+
+[Install]
+RequiredBy=open-vm-tools.service
+#  SPDX-License-Identifier: LGPL-2.1+
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=Network Name Resolution
+Documentation=man:systemd-resolved.service(8)
+Documentation=https://www.freedesktop.org/wiki/Software/systemd/resolved
+Documentation=https://www.freedesktop.org/wiki/Software/systemd/writing-network-configuration-managers
+Documentation=https://www.freedesktop.org/wiki/Software/systemd/writing-resolver-clients
+DefaultDependencies=no
+After=systemd-sysusers.service systemd-networkd.service
+Before=network.target nss-lookup.target shutdown.target
+Conflicts=shutdown.target
+Wants=nss-lookup.target
+
+[Service]
+AmbientCapabilities=CAP_SETPCAP CAP_NET_RAW CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_SETPCAP CAP_NET_RAW CAP_NET_BIND_SERVICE
+ExecStart=!!/lib/systemd/systemd-resolved
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+NoNewPrivileges=yes
+PrivateDevices=yes
+PrivateTmp=yes
+ProtectControlGroups=yes
+ProtectHome=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectKernelLogs=yes
+ProtectSystem=strict
+Restart=always
+RestartSec=0
+RestrictAddressFamilies=AF_UNIX AF_NETLINK AF_INET AF_INET6
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+RuntimeDirectory=systemd/resolve
+RuntimeDirectoryPreserve=yes
+SystemCallArchitectures=native
+SystemCallErrorNumber=EPERM
+SystemCallFilter=@system-service
+Type=notify
+User=systemd-resolve
+WatchdogSec=3min
+
+[Install]
+WantedBy=multi-user.target
+Alias=dbus-org.freedesktop.resolve1.service
+[Unit]
+Description=Regular background program processing daemon
+Documentation=man:cron(8)
+After=remote-fs.target nss-user-lookup.target
+
+[Service]
+EnvironmentFile=-/etc/default/cron
+ExecStart=/usr/sbin/cron -f $EXTRA_OPTS
+IgnoreSIGPIPE=false
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=Record successful boot for GRUB
+After=sleep.target
+ConditionPathExists=/boot/grub/grub.cfg
+
+[Service]
+Type=oneshot
+Restart=no
+ExecStartPre=/bin/sh -c '[ -s /boot/grub/grubenv ] || rm -f /boot/grub/grubenv; mkdir -p /boot/grub'
+ExecStart=grub-editenv /boot/grub/grubenv unset recordfail
+ExecStartPost=/bin/sh -c 'if grub-editenv /boot/grub/grubenv list | grep -q initrdless_boot_fallback_triggered=1; then echo "grub: GRUB_FORCE_PARTUUID set, initrdless boot paniced, fallback triggered."; fi'
+StandardOutput=kmsg
+
+[Install]
+WantedBy=multi-user.target sleep.target
+# This service only runs on GCP to enable auto-attaching to Ubuntu Advantage
+# services when an Ubuntu Pro license is added to a GCP machine.
+# If you are uninterested in the (free for personal use) Ubuntu Advantage
+# services, including security updates after standard EOL and kernel patching
+# without rebooting, then you can safely stop and disable this service:
+# sudo systemctl stop ubuntu-advantage.service
+# sudo systemctl disable ubuntu-advantage.service
+
+[Unit]
+Description=Ubuntu Advantage GCP Auto Attach Daemon
+Documentation=man:ubuntu-advantage https://ubuntu.com/advantage
+After=network.target network-online.target systemd-networkd.service ua-auto-attach.service cloud-config.service ubuntu-advantage-cloud-id-shim.service
+
+# Only run if not already attached
+ConditionPathExists=!/var/lib/ubuntu-advantage/private/machine-token.json
+# Only run on GCP
+ConditionPathExists=/run/cloud-init/cloud-id-gce
+
+[Service]
+Type=notify
+NotifyAccess=main
+ExecStart=/usr/bin/python3 /usr/lib/ubuntu-advantage/daemon.py
+WorkingDirectory=/var/lib/ubuntu-advantage/
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=GRUB failed boot detection
+After=local-fs.target
+After=grub-common.service
+After=sleep.target
+ConditionPathExists=/boot/grub/grub.cfg
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/grub-editenv /boot/grub/grubenv unset initrdfail
+ExecStart=/usr/bin/grub-editenv /boot/grub/grubenv unset prev_entry
+TimeoutSec=0
+
+[Install]
+WantedBy=multi-user.target rescue.target emergency.target sleep.target
+[Unit]
+Description=System Logging Service
+Requires=syslog.socket
+Documentation=man:rsyslogd(8)
+Documentation=https://www.rsyslog.com/doc/
+
+[Service]
+Type=notify
+ExecStart=/usr/sbin/rsyslogd -n -iNONE
+StandardOutput=null
+Restart=on-failure
+
+# Increase the default a bit in order to allow many simultaneous
+# files to be monitored, we might need a lot of fds.
+LimitNOFILE=16384
+
+[Install]
+WantedBy=multi-user.target
+Alias=syslog.service
+[Unit]
+Description=Userspace listener for prompt events
+After=snapd.socket
+ConditionPathExists=/sys/kernel/security/apparmor/.notify
+
+[Service]
+ExecStart=/usr/lib/snapd/snapd-aa-prompt-listener
+EnvironmentFile=-/etc/environment
+Restart=on-failure
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=Dispatcher daemon for systemd-networkd
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/networkd-dispatcher $networkd_dispatcher_args
+
+# Load /etc/default/networkd-dispatcher
+EnvironmentFile=-/etc/default/%p
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=Wait until snapd is fully seeded
+After=snapd.service snapd.socket
+Requires=snapd.socket
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/snap wait system seed.loaded
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target cloud-final.service
+# This is handled special in snapd
+# X-Snapd-Snap: do-not-start
+# This systemd unit is needed on distributions that use apparmor but don't have
+# special support for loading snapd apparmor profiles. Until upstream apparmor
+# user-space release contains a systemd unit that is actually shipped by
+# distributors and that contains the necessary extension points for snapd the
+# apparmor profiles for snap applications need to be loaded separately from
+# other applications.
+[Unit]
+Description=Load AppArmor profiles managed internally by snapd
+DefaultDependencies=no
+Before=sysinit.target
+# This dependency is meant to ensure that apparmor initialization (whatever that might entail) is complete.
+After=apparmor.service
+ConditionSecurity=apparmor
+RequiresMountsFor=/var/cache/apparmor /var/lib/snapd/apparmor/profiles
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/snapd/snapd-apparmor start
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=Unattended Upgrades Shutdown
+After=network.target local-fs.target systemd-logind.service
+RequiresMountsFor=/run /var/log /var/run /var/lib /boot
+Documentation=man:unattended-upgrade(8)
+
+[Service]
+ExecStart=/usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal
+KillMode=process
+TimeoutStopSec=1800
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=LXD - agent
+Documentation=https://linuxcontainers.org/lxd
+ConditionPathExists=/dev/virtio-ports/org.linuxcontainers.lxd
+Requires=lxd-agent-9p.service
+After=lxd-agent-9p.service
+Before=cloud-init.target cloud-init.service cloud-init-local.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+WorkingDirectory=/run/lxd_config/9p
+ExecStart=/run/lxd_config/9p/lxd-agent
+Restart=on-failure
+RestartSec=5s
+StartLimitInterval=60
+StartLimitBurst=10
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=irqbalance daemon
+Documentation=man:irqbalance(1)
+Documentation=https://github.com/Irqbalance/irqbalance
+ConditionVirtualization=!container
+
+[Service]
+EnvironmentFile=/etc/default/irqbalance
+ExecStart=/usr/sbin/irqbalance --foreground $IRQBALANCE_ARGS
+CapabilityBoundingSet=
+NoNewPrivileges=yes
+ReadOnlyPaths=/
+ReadWritePaths=/proc/irq
+RestrictAddressFamilies=AF_UNIX
+RuntimeDirectory=irqbalance/
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=The Apache HTTP Server
+After=network.target remote-fs.target nss-lookup.target
+Documentation=https://httpd.apache.org/docs/2.4/
+
+[Service]
+Type=forking
+Environment=APACHE_STARTED_BY_SYSTEMD=true
+ExecStart=/usr/sbin/apachectl start
+ExecStop=/usr/sbin/apachectl stop
+ExecReload=/usr/sbin/apachectl graceful
+PrivateTmp=true
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=Uncomplicated firewall
+Documentation=man:ufw(8)
+DefaultDependencies=no
+Before=network.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/lib/ufw/ufw-init start quiet
+ExecStop=/lib/ufw/ufw-init stop
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=Set the CPU Frequency Scaling governor
+ConditionVirtualization=no
+ConditionPathExists=/sys/devices/system/cpu/online
+# Don't run if we're going to start an Android LXC container on Ubuntu Touch
+ConditionPathExists=!/etc/init/lxc-android-config.conf
+
+[Service]
+Type=idle
+ExecStart=/lib/systemd/set-cpufreq
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=Auto import assertions from block devices
+After=snapd.service snapd.socket snapd.seeded.service
+# don't run on classic
+ConditionKernelCommandLine=|snap_core
+# TODO:UC20: only enable this in run mode?
+ConditionKernelCommandLine=|snapd_recovery_mode
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/snap auto-import
+
+[Install]
+WantedBy=multi-user.target
+# This cannot be started on firstboot
+# X-Snapd-Snap: do-not-start
+[Unit]
+Description=Thermal Daemon Service
+ConditionVirtualization=no
+
+[Service]
+Type=dbus
+SuccessExitStatus=1
+BusName=org.freedesktop.thermald
+ExecStart=/usr/sbin/thermald --systemd --dbus-enable --adaptive
+
+[Install]
+WantedBy=multi-user.target
+Alias=dbus-org.freedesktop.thermald.service
+
+[Unit]
+Description=Secure Boot updates for DB and DBX
+ConditionPathExists=/sys/firmware/efi/efivars/db-d719b2cb-3d3a-4596-a3bc-dad00e67656f
+
+[Service]
+Type=oneshot
+ExecStartPre=-/usr/bin/chattr -i /sys/firmware/efi/efivars/KEK-8be4df61-93ca-11d2-aa0d-00e098032b8c
+ExecStartPre=-/usr/bin/chattr -i /sys/firmware/efi/efivars/db-d719b2cb-3d3a-4596-a3bc-dad00e67656f
+ExecStartPre=-/usr/bin/chattr -i /sys/firmware/efi/efivars/dbx-d719b2cb-3d3a-4596-a3bc-dad00e67656f
+ExecStart=/usr/bin/sbkeysync --no-default-keystores --keystore /usr/share/secureboot/updates --verbose
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=fast remote file copy program daemon
+Documentation=man:rsync(1) man:rsyncd.conf(5)
+ConditionPathExists=/etc/rsyncd.conf
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/rsync --daemon --no-detach
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=LXD - agent - 9p mount
+Documentation=https://linuxcontainers.org/lxd
+ConditionPathExists=/dev/virtio-ports/org.linuxcontainers.lxd
+After=local-fs.target
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStartPre=-/sbin/modprobe 9pnet_virtio
+ExecStartPre=/bin/mkdir -p /run/lxd_config/9p
+ExecStartPre=/bin/chmod 0700 /run/lxd_config/
+ExecStart=/bin/mount -t 9p config /run/lxd_config/9p -o access=0,trans=virtio
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=Ubuntu Advantage reboot cmds
+ConditionPathExists=/var/lib/ubuntu-advantage/marker-reboot-cmds-required
+Wants=ua-auto-attach.service
+After=ua-auto-attach.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/lib/ubuntu-advantage/reboot_cmds.py
+TimeoutSec=0
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=Save initial kernel messages after boot
+
+[Service]
+Type=idle
+StandardOutput=file:/var/log/dmesg
+ExecStartPre=-/usr/bin/savelog -q -p -n -c 5 /var/log/dmesg
+ExecStart=/bin/journalctl --boot 0 --dmesg --output short-monotonic --quiet --no-pager --no-hostname
+ExecStartPost=/bin/chgrp adm /var/log/dmesg
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=Modem Manager
+After=polkit.service
+Requires=polkit.service
+
+[Service]
+Type=dbus
+BusName=org.freedesktop.ModemManager1
+ExecStart=/usr/sbin/ModemManager
+StandardError=null
+Restart=on-abort
+CapabilityBoundingSet=CAP_SYS_ADMIN CAP_NET_ADMIN
+ProtectSystem=true
+ProtectHome=true
+PrivateTmp=true
+RestrictAddressFamilies=AF_NETLINK AF_UNIX AF_QIPCRTR
+NoNewPrivileges=true
+User=root
+
+[Install]
+WantedBy=multi-user.target
+Alias=dbus-org.freedesktop.ModemManager1.service
+[Unit]
+Description=Wait for the Ubuntu Core chooser trigger
+Wants=getty-pre.target
+Before=getty-pre.target
+# don't run on classic or uc16/uc18
+ConditionKernelCommandLine=snapd_recovery_mode
+# only run when there are input devices
+ConditionPathExistsGlob=/dev/input/event*
+
+[Service]
+# blocks the service startup until a trigger is detected or a timeout is hit
+Type=oneshot
+ExecStart=/usr/lib/snapd/snap-bootstrap recovery-chooser-trigger
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
+
+# started on boot only
+# X-Snapd-Snap: do-not-start
+#  SPDX-License-Identifier: LGPL-2.1+
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=Network Service
+Documentation=man:systemd-networkd.service(8)
+ConditionCapability=CAP_NET_ADMIN
+DefaultDependencies=no
+# systemd-udevd.service can be dropped once tuntap is moved to netlink
+After=systemd-udevd.service network-pre.target systemd-sysusers.service systemd-sysctl.service
+Before=network.target multi-user.target shutdown.target
+Conflicts=shutdown.target
+Wants=network.target
+
+[Service]
+AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_NET_BROADCAST CAP_NET_RAW
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_NET_BROADCAST CAP_NET_RAW
+DeviceAllow=char-* rw
+ExecStart=!!/lib/systemd/systemd-networkd
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+NoNewPrivileges=yes
+ProtectControlGroups=yes
+ProtectHome=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectSystem=strict
+Restart=on-failure
+RestartSec=0
+RestrictAddressFamilies=AF_UNIX AF_NETLINK AF_INET AF_INET6 AF_PACKET AF_ALG
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+RuntimeDirectory=systemd/netif
+RuntimeDirectoryPreserve=yes
+SystemCallArchitectures=native
+SystemCallErrorNumber=EPERM
+SystemCallFilter=@system-service
+Type=notify
+RestartKillSignal=SIGUSR2
+User=systemd-network
+WatchdogSec=3min
+
+[Install]
+WantedBy=multi-user.target
+Also=systemd-networkd.socket
+Alias=dbus-org.freedesktop.network1.service
+
+# We want to enable systemd-networkd-wait-online.service whenever this service
+# is enabled. systemd-networkd-wait-online.service has
+# WantedBy=network-online.target, so enabling it only has an effect if
+# network-online.target itself is enabled or pulled in by some other unit.
+Also=systemd-networkd-wait-online.service
+# MySQL systemd service file
+
+[Unit]
+Description=MySQL Community Server
+After=network.target
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Type=notify
+User=mysql
+Group=mysql
+PIDFile=/run/mysqld/mysqld.pid
+PermissionsStartOnly=true
+ExecStartPre=/usr/share/mysql/mysql-systemd-start pre
+ExecStart=/usr/sbin/mysqld
+TimeoutSec=infinity
+Restart=on-failure
+RuntimeDirectory=mysqld
+RuntimeDirectoryMode=755
+LimitNOFILE=10000
+
+# Set enviroment variable MYSQLD_PARENT_PID. This is required for restart.
+Environment=MYSQLD_PARENT_PID=1
+[Unit]
+Description=OpenBSD Secure Shell server
+Documentation=man:sshd(8) man:sshd_config(5)
+After=network.target auditd.service
+ConditionPathExists=!/etc/ssh/sshd_not_to_be_run
+
+[Service]
+EnvironmentFile=-/etc/default/ssh
+ExecStartPre=/usr/sbin/sshd -t
+ExecStart=/usr/sbin/sshd -D $SSHD_OPTS
+ExecReload=/usr/sbin/sshd -t
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=on-failure
+RestartPreventExitStatus=255
+Type=notify
+RuntimeDirectory=sshd
+RuntimeDirectoryMode=0755
+
+[Install]
+WantedBy=multi-user.target
+Alias=sshd.service
+[Unit]
+Description=Set console font and keymap
+DefaultDependencies=no
+After=console-screen.service kbd.service local-fs.target
+RequiresMountsFor=/usr
+ConditionPathExists=/bin/setupcon
+
+[Service]
+Type=oneshot
+ExecStart=/lib/console-setup/console-setup.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=Deferred execution scheduler
+Documentation=man:atd(8)
+After=remote-fs.target nss-user-lookup.target
+
+[Service]
+ExecStartPre=-find /var/spool/cron/atjobs -type f -name "=*" -not -newercc /run/systemd -delete
+ExecStart=/usr/sbin/atd -f
+IgnoreSIGPIPE=false
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+# Auto-generated, DO NOT EDIT
+Description=Service for snap application lxd.activate
+Requires=snap-lxd-22753.mount
+Wants=network.target
+After=snap-lxd-22753.mount network.target snapd.apparmor.service
+X-Snappy=yes
+
+[Service]
+EnvironmentFile=-/etc/environment
+ExecStart=/usr/bin/snap run lxd.activate
+SyslogIdentifier=lxd.activate
+Restart=no
+WorkingDirectory=/var/snap/lxd/22753
+TimeoutStopSec=30
+Type=oneshot
+Delegate=true
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=Service for virtual machines hosted on VMware
+Documentation=http://open-vm-tools.sourceforge.net/about.php
+ConditionVirtualization=vmware
+DefaultDependencies=no
+Before=cloud-init-local.service
+After=vgauth.service
+After=apparmor.service
+RequiresMountsFor=/tmp
+After=systemd-remount-fs.service systemd-tmpfiles-setup.service systemd-modules-load.service
+
+[Service]
+ExecStart=/usr/bin/vmtoolsd
+TimeoutStopSec=5
+
+[Install]
+WantedBy=multi-user.target
+Alias=vmtoolsd.service
+[Unit]
+Description=Snap Daemon
+After=snapd.socket
+After=time-set.target
+After=snapd.mounts.target
+Wants=time-set.target
+Wants=snapd.mounts.target
+Requires=snapd.socket
+OnFailure=snapd.failure.service
+# This is handled by snapd
+# X-Snapd-Snap: do-not-start
+
+[Service]
+# Disabled because it breaks lxd
+# (https://bugs.launchpad.net/snapd/+bug/1709536)
+#Nice=-5
+OOMScoreAdjust=-900
+ExecStart=/usr/lib/snapd/snapd
+EnvironmentFile=-/etc/environment
+Restart=always
+WatchdogSec=5m
+Type=notify
+SuccessExitStatus=42
+RestartPreventExitStatus=42
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=Pollinate to seed the pseudo random number generator
+Before=ssh.service
+After=network-online.target
+ConditionVirtualization=!container
+ConditionPathExists=!/var/cache/pollinate/seeded
+Documentation=https://launchpad.net/pollinate
+
+[Service]
+User=pollinate
+ExecStart=/usr/bin/pollinate
+CacheDirectory=pollinate
+CacheDirectoryMode=0750
+Type=oneshot
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=Automatically repair incorrect owner/permissions on core devices
+Before=snapd.service
+# don't run on classic
+ConditionKernelCommandLine=|snap_core
+ConditionKernelCommandLine=|snapd_recovery_mode
+Documentation=man:snap(1)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/snapd/snapd.core-fixup.sh
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
+
+#  SPDX-License-Identifier: LGPL-2.1+
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=Getty on %I
+Documentation=man:agetty(8) man:systemd-getty-generator(8)
+Documentation=http://0pointer.de/blog/projects/serial-console.html
+After=systemd-user-sessions.service plymouth-quit-wait.service getty-pre.target
+After=rc-local.service
+
+# If additional gettys are spawned during boot then we should make
+# sure that this is synchronized before getty.target, even though
+# getty.target didn't actually pull it in.
+Before=getty.target
+IgnoreOnIsolate=yes
+
+# IgnoreOnIsolate causes issues with sulogin, if someone isolates
+# rescue.target or starts rescue.service from multi-user.target or
+# graphical.target.
+Conflicts=rescue.service
+Before=rescue.service
+
+# On systems without virtual consoles, don't start any getty. Note
+# that serial gettys are covered by serial-getty@.service, not this
+# unit.
+ConditionPathExists=/dev/tty0
+
+[Service]
+# the VT is cleared by TTYVTDisallocate
+# The '-o' option value tells agetty to replace 'login' arguments with an
+# option to preserve environment (-p), followed by '--' for safety, and then
+# the entered username.
+ExecStart=-/sbin/agetty -o '-p -- \\u' --noclear %I $TERM
+Type=idle
+Restart=always
+RestartSec=0
+UtmpIdentifier=%I
+TTYPath=/dev/%I
+TTYReset=yes
+TTYVHangup=yes
+TTYVTDisallocate=yes
+KillMode=process
+IgnoreSIGPIPE=no
+SendSIGHUP=yes
+
+# Unset locale for the console getty since the console has problems
+# displaying some internationalized messages.
+UnsetEnvironment=LANG LANGUAGE LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION
+
+[Install]
+WantedBy=getty.target
+DefaultInstance=tty1
+[Unit]
+Description=Accounts Service
+
+# In order to avoid races with identity-providing services like SSSD or
+# winbind, we need to ensure that Accounts Service starts after
+# nss-user-lookup.target
+After=nss-user-lookup.target
+Wants=nss-user-lookup.target
+
+[Service]
+Type=dbus
+BusName=org.freedesktop.Accounts
+ExecStart=/usr/lib/accountsservice/accounts-daemon
+Environment=GVFS_DISABLE_FUSE=1
+Environment=GIO_USE_VFS=local
+Environment=GVFS_REMOTE_VOLUME_MONITOR_IGNORE=1
+
+[Install]
+# We pull this in by graphical.target instead of waiting for the bus
+# activation, to speed things up a little: gdm uses this anyway so it is nice
+# if it is already around when gdm wants to use it and doesn't have to wait for
+# it.
+WantedBy=graphical.target
+[Unit]
+Description=Disk Manager
+Documentation=man:udisks(8)
+
+[Service]
+Type=dbus
+BusName=org.freedesktop.UDisks2
+ExecStart=/usr/lib/udisks2/udisksd
+KillSignal=SIGINT
+
+[Install]
+WantedBy=graphical.target
+[Unit]
+Description=Wait until snapd is fully seeded
+After=snapd.service snapd.socket
+Requires=snapd.socket
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/snap wait system seed.loaded
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target cloud-final.service
+# This is handled special in snapd
+# X-Snapd-Snap: do-not-start
+[Unit]
+Description=Remove Stale Online ext4 Metadata Check Snapshots
+ConditionCapability=CAP_SYS_ADMIN
+ConditionCapability=CAP_SYS_RAWIO
+Documentation=man:e2scrub_all(8)
+
+[Service]
+Type=oneshot
+WorkingDirectory=/
+PrivateNetwork=true
+ProtectSystem=true
+ProtectHome=read-only
+PrivateTmp=yes
+AmbientCapabilities=CAP_SYS_ADMIN CAP_SYS_RAWIO
+NoNewPrivileges=yes
+User=root
+IOSchedulingClass=idle
+CPUSchedulingPolicy=idle
+Environment=SERVICE_MODE=1
+ExecStart=/sbin/e2scrub_all -A -r
+SyslogIdentifier=%N
+RemainAfterExit=no
+
+[Install]
+WantedBy=default.target
+#  SPDX-License-Identifier: LGPL-2.1+
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=Network Time Synchronization
+Documentation=man:systemd-timesyncd.service(8)
+ConditionCapability=CAP_SYS_TIME
+ConditionVirtualization=!container
+DefaultDependencies=no
+After=systemd-sysusers.service
+Before=time-set.target sysinit.target shutdown.target
+Conflicts=shutdown.target
+Wants=time-set.target time-sync.target
+
+[Service]
+AmbientCapabilities=CAP_SYS_TIME
+CapabilityBoundingSet=CAP_SYS_TIME
+ExecStart=!!/lib/systemd/systemd-timesyncd
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+NoNewPrivileges=yes
+PrivateDevices=yes
+PrivateTmp=yes
+ProtectControlGroups=yes
+ProtectHome=yes
+ProtectHostname=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectKernelLogs=yes
+ProtectSystem=strict
+Restart=always
+RestartSec=0
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+RuntimeDirectory=systemd/timesync
+StateDirectory=systemd/timesync
+SystemCallArchitectures=native
+SystemCallErrorNumber=EPERM
+SystemCallFilter=@system-service @clock
+Type=notify
+User=systemd-timesync
+WatchdogSec=3min
+
+[Install]
+WantedBy=sysinit.target
+Alias=dbus-org.freedesktop.timesync1.service
+[Unit]
+# Auto-generated, DO NOT EDIT
+Description=Service for snap application lxd.daemon
+Requires=snap-lxd-22753.mount
+Wants=network.target
+After=snap-lxd-22753.mount network.target snapd.apparmor.service
+X-Snappy=yes
+
+[Service]
+EnvironmentFile=-/etc/environment
+ExecStart=/usr/bin/snap run lxd.daemon
+SyslogIdentifier=lxd.daemon
+Restart=on-failure
+WorkingDirectory=/var/snap/lxd/22753
+ExecStop=/usr/bin/snap run --command=stop lxd.daemon
+ExecReload=/usr/bin/snap run --command=reload lxd.daemon
+TimeoutStopSec=600
+Type=simple
+Delegate=true
+[Unit]
+Description=OpenBSD Secure Shell server
+Documentation=man:sshd(8) man:sshd_config(5)
+After=network.target auditd.service
+ConditionPathExists=!/etc/ssh/sshd_not_to_be_run
+
+[Service]
+EnvironmentFile=-/etc/default/ssh
+ExecStartPre=/usr/sbin/sshd -t
+ExecStart=/usr/sbin/sshd -D $SSHD_OPTS
+ExecReload=/usr/sbin/sshd -t
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=on-failure
+RestartPreventExitStatus=255
+Type=notify
+RuntimeDirectory=sshd
+RuntimeDirectoryMode=0755
+
+[Install]
+WantedBy=multi-user.target
+Alias=sshd.service
+[Unit]
+Description=Service for virtual machines hosted on VMware
+Documentation=http://open-vm-tools.sourceforge.net/about.php
+ConditionVirtualization=vmware
+DefaultDependencies=no
+Before=cloud-init-local.service
+After=vgauth.service
+After=apparmor.service
+RequiresMountsFor=/tmp
+After=systemd-remount-fs.service systemd-tmpfiles-setup.service systemd-modules-load.service
+
+[Service]
+ExecStart=/usr/bin/vmtoolsd
+TimeoutStopSec=5
+
+[Install]
+WantedBy=multi-user.target
+Alias=vmtoolsd.service
+[Unit]
+Description=Login to default iSCSI targets
+Documentation=man:iscsiadm(8) man:iscsid(8)
+Wants=network-online.target remote-fs-pre.target
+After=network-online.target iscsid.service
+Before=remote-fs-pre.target
+DefaultDependencies=no
+Conflicts=shutdown.target
+Before=shutdown.target
+# Must have some pre-defined targets to login to
+ConditionDirectoryNotEmpty=|/etc/iscsi/nodes
+# or have a session to use via iscsid
+ConditionDirectoryNotEmpty=|/sys/class/iscsi_session
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+# iscsiadm --login will return 21 if no nodes are configured,
+# and 15 if a session is alread logged in (which we do not
+# consider an error)
+SuccessExitStatus=15 21
+# Note: iscsid will be socket activated by iscsiadm
+ExecStart=/sbin/iscsiadm -m node --loginall=automatic
+ExecStart=/lib/open-iscsi/activate-storage.sh
+ExecStop=/lib/open-iscsi/umountiscsi.sh
+ExecStop=/bin/sync
+ExecStop=/lib/open-iscsi/logout-all.sh
+
+[Install]
+WantedBy=sysinit.target
+Alias=iscsi.service
+[Unit]
+Description=Thermal Daemon Service
+ConditionVirtualization=no
+
+[Service]
+Type=dbus
+SuccessExitStatus=1
+BusName=org.freedesktop.thermald
+ExecStart=/usr/sbin/thermald --systemd --dbus-enable --adaptive
+
+[Install]
+WantedBy=multi-user.target
+Alias=dbus-org.freedesktop.thermald.service
+
+[Unit]
+Description=Record successful boot for GRUB
+After=sleep.target
+ConditionPathExists=/boot/grub/grub.cfg
+
+[Service]
+Type=oneshot
+Restart=no
+ExecStartPre=/bin/sh -c '[ -s /boot/grub/grubenv ] || rm -f /boot/grub/grubenv; mkdir -p /boot/grub'
+ExecStart=grub-editenv /boot/grub/grubenv unset recordfail
+ExecStartPost=/bin/sh -c 'if grub-editenv /boot/grub/grubenv list | grep -q initrdless_boot_fallback_triggered=1; then echo "grub: GRUB_FORCE_PARTUUID set, initrdless boot paniced, fallback triggered."; fi'
+StandardOutput=kmsg
+
+[Install]
+WantedBy=multi-user.target sleep.target
+[Unit]
+Description=GRUB failed boot detection
+After=local-fs.target
+After=grub-common.service
+After=sleep.target
+ConditionPathExists=/boot/grub/grub.cfg
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/grub-editenv /boot/grub/grubenv unset initrdfail
+ExecStart=/usr/bin/grub-editenv /boot/grub/grubenv unset prev_entry
+TimeoutSec=0
+
+[Install]
+WantedBy=multi-user.target rescue.target emergency.target sleep.target
+#  SPDX-License-Identifier: LGPL-2.1+
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=Network Name Resolution
+Documentation=man:systemd-resolved.service(8)
+Documentation=https://www.freedesktop.org/wiki/Software/systemd/resolved
+Documentation=https://www.freedesktop.org/wiki/Software/systemd/writing-network-configuration-managers
+Documentation=https://www.freedesktop.org/wiki/Software/systemd/writing-resolver-clients
+DefaultDependencies=no
+After=systemd-sysusers.service systemd-networkd.service
+Before=network.target nss-lookup.target shutdown.target
+Conflicts=shutdown.target
+Wants=nss-lookup.target
+
+[Service]
+AmbientCapabilities=CAP_SETPCAP CAP_NET_RAW CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_SETPCAP CAP_NET_RAW CAP_NET_BIND_SERVICE
+ExecStart=!!/lib/systemd/systemd-resolved
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+NoNewPrivileges=yes
+PrivateDevices=yes
+PrivateTmp=yes
+ProtectControlGroups=yes
+ProtectHome=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectKernelLogs=yes
+ProtectSystem=strict
+Restart=always
+RestartSec=0
+RestrictAddressFamilies=AF_UNIX AF_NETLINK AF_INET AF_INET6
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+RuntimeDirectory=systemd/resolve
+RuntimeDirectoryPreserve=yes
+SystemCallArchitectures=native
+SystemCallErrorNumber=EPERM
+SystemCallFilter=@system-service
+Type=notify
+User=systemd-resolve
+WatchdogSec=3min
+
+[Install]
+WantedBy=multi-user.target
+Alias=dbus-org.freedesktop.resolve1.service
+[Unit]
+Description=Monitoring of LVM2 mirrors, snapshots etc. using dmeventd or progress polling
+Documentation=man:dmeventd(8) man:lvcreate(8) man:lvchange(8) man:vgchange(8)
+Requires=dm-event.socket
+After=dm-event.socket dm-event.service lvm2-activation.service
+Before=local-fs-pre.target shutdown.target
+DefaultDependencies=no
+Conflicts=shutdown.target
+ConditionVirtualization=!container
+
+[Service]
+Type=oneshot
+Environment=LVM_SUPPRESS_LOCKING_FAILURE_MESSAGES=1
+ExecStart=/sbin/lvm vgchange --monitor y
+ExecStop=/sbin/lvm vgchange --monitor n
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target
+#  SPDX-License-Identifier: LGPL-2.1+
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=Platform Persistent Storage Archival
+Documentation=man:systemd-pstore(8)
+ConditionDirectoryNotEmpty=/sys/fs/pstore
+ConditionVirtualization=!container
+DefaultDependencies=no
+Conflicts=shutdown.target
+Before=sysinit.target shutdown.target
+After=modprobe@efi_pstore.service modprobe@chromeos_pstore.service modprobe@ramoops.service modprobe@pstore_zone.service modprobe@pstore_blk.service
+Wants=modprobe@efi_pstore.service modprobe@chromeos_pstore.service modprobe@ramoops.service modprobe@pstore_zone.service modprobe@pstore_blk.service
+
+[Service]
+Type=oneshot
+ExecStart=/lib/systemd/systemd-pstore
+RemainAfterExit=yes
+StateDirectory=systemd/pstore
+
+[Install]
+WantedBy=sysinit.target
+[Unit]
+Description=Device-Mapper Multipath Device Controller
+Wants=systemd-udev-trigger.service systemd-udev-settle.service
+Before=iscsi.service iscsid.service lvm2-activation-early.service
+Before=local-fs-pre.target blk-availability.service
+After=multipathd.socket systemd-udev-trigger.service systemd-udev-settle.service
+DefaultDependencies=no
+Conflicts=shutdown.target
+ConditionKernelCommandLine=!nompath
+ConditionKernelCommandLine=!multipath=off
+ConditionVirtualization=!container
+
+[Service]
+Type=notify
+NotifyAccess=main
+LimitCORE=infinity
+ExecStartPre=-/sbin/modprobe -a scsi_dh_alua scsi_dh_emc scsi_dh_rdac dm-multipath
+ExecStart=/sbin/multipathd -d -s
+ExecReload=/sbin/multipathd reconfigure
+TasksMax=infinity
+
+[Install]
+WantedBy=sysinit.target
+Also=multipathd.socket
+Alias=multipath-tools.service
+[Unit]
+Description=Availability of block devices
+Before=shutdown.target
+After=lvm2-activation.service iscsi-shutdown.service iscsi.service iscsid.service fcoe.service rbdmap.service
+DefaultDependencies=no
+Conflicts=shutdown.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/true
+ExecStop=/sbin/blkdeactivate -u -l wholevg -m disablequeueing -r wait
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target
+[Unit]
+Description=Load AppArmor profiles
+DefaultDependencies=no
+Before=sysinit.target
+After=local-fs.target
+After=systemd-journald-audit.socket
+RequiresMountsFor=/var/cache/apparmor
+AssertPathIsReadWrite=/sys/kernel/security/apparmor/.load
+ConditionSecurity=apparmor
+Documentation=man:apparmor(7)
+Documentation=https://gitlab.com/apparmor/apparmor/wikis/home/
+
+# Don't start this unit on the Ubuntu Live CD
+ConditionPathExists=!/rofs/etc/apparmor.d
+
+# Don't start this unit on the Debian Live CD when using overlayfs
+ConditionPathExists=!/run/live/overlay/work
+
+[Service]
+Type=oneshot
+ExecStart=/lib/apparmor/apparmor.systemd reload
+ExecReload=/lib/apparmor/apparmor.systemd reload
+
+# systemd maps 'restart' to 'stop; start' which means removing AppArmor confinement
+# from running processes (and not being able to re-apply it later).
+# Upstream systemd developers refused to implement an option that allows overriding
+# this behaviour, therefore we have to make ExecStop a no-op to error out on the
+# safe side.
+#
+# If you really want to unload all AppArmor profiles, run   aa-teardown
+ExecStop=/bin/true
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target
+# SPDX-License-Identifier: GPL-3.0-only
+
+[Unit]
+Description=Create final runtime dir for shutdown pivot root
+Documentation=man:finalrd(1)
+After=local-fs.target boot.mount boot.automount
+Wants=local-fs.target
+Conflicts=shutdown.target umount.target
+DefaultDependencies=no
+
+[Service]
+RemainAfterExit=yes
+Type=oneshot
+ExecStart=/bin/true
+ExecStop=/usr/bin/finalrd
+
+[Install]
+WantedBy=sysinit.target
+[Unit]
+Description=Set console scheme
+DefaultDependencies=no
+After=systemd-user-sessions.service plymouth-quit-wait.service
+Before=system-getty.slice
+ConditionPathExists=/sbin/setvtrgb
+ConditionPathExists=/dev/tty0
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/setvtrgb /etc/vtrgb
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target
+#  SPDX-License-Identifier: LGPL-2.1+
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=Network Time Synchronization
+Documentation=man:systemd-timesyncd.service(8)
+ConditionCapability=CAP_SYS_TIME
+ConditionVirtualization=!container
+DefaultDependencies=no
+After=systemd-sysusers.service
+Before=time-set.target sysinit.target shutdown.target
+Conflicts=shutdown.target
+Wants=time-set.target time-sync.target
+
+[Service]
+AmbientCapabilities=CAP_SYS_TIME
+CapabilityBoundingSet=CAP_SYS_TIME
+ExecStart=!!/lib/systemd/systemd-timesyncd
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+NoNewPrivileges=yes
+PrivateDevices=yes
+PrivateTmp=yes
+ProtectControlGroups=yes
+ProtectHome=yes
+ProtectHostname=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectKernelLogs=yes
+ProtectSystem=strict
+Restart=always
+RestartSec=0
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+RuntimeDirectory=systemd/timesync
+StateDirectory=systemd/timesync
+SystemCallArchitectures=native
+SystemCallErrorNumber=EPERM
+SystemCallFilter=@system-service @clock
+Type=notify
+User=systemd-timesync
+WatchdogSec=3min
+
+[Install]
+WantedBy=sysinit.target
+Alias=dbus-org.freedesktop.timesync1.service
+[Unit]
+Description=Set the console keyboard layout
+DefaultDependencies=no
+Before=local-fs-pre.target
+Wants=local-fs-pre.target
+ConditionPathExists=/bin/setupcon
+
+[Service]
+Type=oneshot
+ExecStart=/lib/console-setup/keyboard-setup.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target
+[Unit]
+Description=Login to default iSCSI targets
+Documentation=man:iscsiadm(8) man:iscsid(8)
+Wants=network-online.target remote-fs-pre.target
+After=network-online.target iscsid.service
+Before=remote-fs-pre.target
+DefaultDependencies=no
+Conflicts=shutdown.target
+Before=shutdown.target
+# Must have some pre-defined targets to login to
+ConditionDirectoryNotEmpty=|/etc/iscsi/nodes
+# or have a session to use via iscsid
+ConditionDirectoryNotEmpty=|/sys/class/iscsi_session
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+# iscsiadm --login will return 21 if no nodes are configured,
+# and 15 if a session is alread logged in (which we do not
+# consider an error)
+SuccessExitStatus=15 21
+# Note: iscsid will be socket activated by iscsiadm
+ExecStart=/sbin/iscsiadm -m node --loginall=automatic
+ExecStart=/lib/open-iscsi/activate-storage.sh
+ExecStop=/lib/open-iscsi/umountiscsi.sh
+ExecStop=/bin/sync
+ExecStop=/lib/open-iscsi/logout-all.sh
+
+[Install]
+WantedBy=sysinit.target
+Alias=iscsi.service
+[Unit]
+Description=Device-Mapper Multipath Device Controller
+Wants=systemd-udev-trigger.service systemd-udev-settle.service
+Before=iscsi.service iscsid.service lvm2-activation-early.service
+Before=local-fs-pre.target blk-availability.service
+After=multipathd.socket systemd-udev-trigger.service systemd-udev-settle.service
+DefaultDependencies=no
+Conflicts=shutdown.target
+ConditionKernelCommandLine=!nompath
+ConditionKernelCommandLine=!multipath=off
+ConditionVirtualization=!container
+
+[Service]
+Type=notify
+NotifyAccess=main
+LimitCORE=infinity
+ExecStartPre=-/sbin/modprobe -a scsi_dh_alua scsi_dh_emc scsi_dh_rdac dm-multipath
+ExecStart=/sbin/multipathd -d -s
+ExecReload=/sbin/multipathd reconfigure
+TasksMax=infinity
+
+[Install]
+WantedBy=sysinit.target
+Also=multipathd.socket
+Alias=multipath-tools.service
+[Unit]
+Description=Modem Manager
+After=polkit.service
+Requires=polkit.service
+
+[Service]
+Type=dbus
+BusName=org.freedesktop.ModemManager1
+ExecStart=/usr/sbin/ModemManager
+StandardError=null
+Restart=on-abort
+CapabilityBoundingSet=CAP_SYS_ADMIN CAP_NET_ADMIN
+ProtectSystem=true
+ProtectHome=true
+PrivateTmp=true
+RestrictAddressFamilies=AF_NETLINK AF_UNIX AF_QIPCRTR
+NoNewPrivileges=true
+User=root
+
+[Install]
+WantedBy=multi-user.target
+Alias=dbus-org.freedesktop.ModemManager1.service
+[Unit]
+# Auto-generated, DO NOT EDIT
+Description=Service for snap application lxd.activate
+Requires=snap-lxd-22753.mount
+Wants=network.target
+After=snap-lxd-22753.mount network.target snapd.apparmor.service
+X-Snappy=yes
+
+[Service]
+EnvironmentFile=-/etc/environment
+ExecStart=/usr/bin/snap run lxd.activate
+SyslogIdentifier=lxd.activate
+Restart=no
+WorkingDirectory=/var/snap/lxd/22753
+TimeoutStopSec=30
+Type=oneshot
+Delegate=true
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=Ubuntu core (all-snaps) system shutdown helper setup service
+Before=umount.target
+DefaultDependencies=false
+# don't run on classic
+ConditionKernelCommandLine=|snap_core
+ConditionKernelCommandLine=|snapd_recovery_mode
+ConditionPathExists=!/usr/bin/finalrd
+# don't run if system-shutdown isn't there
+ConditionPathExists=/usr/lib/snapd/system-shutdown
+# X-Snapd-Snap: do-not-start
+
+[Service]
+Type=oneshot
+ExecStart=/bin/mount /run -o remount,exec
+ExecStart=/bin/mkdir -p /run/initramfs
+ExecStart=/bin/cp /usr/lib/snapd/system-shutdown /run/initramfs/shutdown
+
+[Install]
+WantedBy=final.target
+[Unit]
+Description=GRUB failed boot detection
+After=local-fs.target
+After=grub-common.service
+After=sleep.target
+ConditionPathExists=/boot/grub/grub.cfg
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/grub-editenv /boot/grub/grubenv unset initrdfail
+ExecStart=/usr/bin/grub-editenv /boot/grub/grubenv unset prev_entry
+TimeoutSec=0
+
+[Install]
+WantedBy=multi-user.target rescue.target emergency.target sleep.target

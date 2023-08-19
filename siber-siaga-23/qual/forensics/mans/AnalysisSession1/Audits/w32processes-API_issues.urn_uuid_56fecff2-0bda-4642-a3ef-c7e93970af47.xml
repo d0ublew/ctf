@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<IssueList generator="FireEye Agent" generatorVersion="31.28.1" itemSchemaLocation="http://schemas.mandiant.com/2013/11/issuelist.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://schemas.mandiant.com/2013/11/issues.xsd">
+ <Issue context="FindAllProcesses" level="Info" number="0" ref="uuid:5a90596a-6bae-458b-bde1-5ca131de6c3c" summary="services.exe (576) process opened for very limited information" />
+ <Issue context="FindAllProcesses" level="Info" number="0" ref="uuid:86125fab-64e9-4cba-a57e-f03728131e74" summary="wininit.exe (504) process opened for very limited information" />
+ <Issue context="FindAllProcesses" level="Info" number="0" ref="uuid:1ea7ba93-a9a5-40d1-b310-cf81402dcc5c" summary="Secure System (48) process opened for very limited information" />
+ <Issue context="FindAllProcesses" level="Info" number="0" ref="uuid:85e6786b-04a7-4c2e-a882-2d6f42e01bf8" summary="csrss.exe (432) process opened for very limited information" />
+ <Issue context="FindAllProcesses" level="Info" number="0" ref="uuid:565c643b-daee-41c9-b3e6-fc53d07499d8" summary="Registry (96) process opened for very limited information" />
+ <Issue context="FindAllProcesses" level="Info" number="0" ref="uuid:965e4e34-a687-48ce-8293-fdfb6aef2272" summary="System (4) process opened for very limited information" />
+ <Issue context="FindAllProcesses" level="Info" number="0" ref="uuid:a818d3a7-2a0d-4db6-a3d3-413164dcf378" summary="csrss.exe (512) process opened for very limited information" />
+ <Issue context="FindAllProcesses" level="Info" number="0" ref="uuid:22a2415a-eba1-4cfd-850d-5248914d83cd" summary="smss.exe (304) process opened for very limited information" />
+ <Issue context="EmitParametersFromPEB" level="Warning" number="998" ref="uuid:ca8fe973-c496-4b0c-9ab5-666205fd1b48" summary="Unable to read the PEB for Process ID = 620." />
+ <Issue context="FindAllProcesses" level="Info" number="0" ref="uuid:14b34e7f-3400-4f2c-8d39-9b76cde70fc2" summary="Memory Compression (1744) process opened for very limited information" />
+ <Issue context="FindAllProcesses" level="Info" number="0" ref="uuid:b7a5ea2d-85b2-4c45-8aaf-7fcdd4403812" summary="SgrmBroker.exe (6964) process opened for very limited information" />
+ <Issue context="FindAllProcesses" level="Info" number="0" ref="uuid:667b07dd-5a79-4175-9f81-de75aab898a4" summary="svchost.exe (6244) process opened for very limited information" />
+ <Issue context="FindAllProcesses" level="Info" number="0" ref="uuid:15c04386-5161-4835-b70a-f6886cdd3eae" summary="SecurityHealthService.exe (6948) process opened for very limited information" />
+ <Issue context="FindAllProcesses" level="Info" number="0" ref="uuid:62998130-55b9-4bf5-ad96-fd842d81ed07" summary="svchost.exe (864) process opened for very limited information" />
+ <Issue context="FindAllProcesses" level="Info" number="0" ref="uuid:b26a6d42-52d4-446f-a7e8-e08b6688742c" summary="svchost.exe (572) process opened for very limited information" />
+</IssueList>

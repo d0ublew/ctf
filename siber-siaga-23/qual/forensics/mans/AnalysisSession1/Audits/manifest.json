@@ -1,0 +1,148 @@
+{
+	"type": "audit_manifest",
+	"version": "1.0",
+	"audits": [
+		{
+			"id": "urn:uuid:71e015d9-0aab-4a21-a867-7cd41e8fd2d2",
+			"generator": "w32memory-acquisition",
+			"generatorVersion": "31.28.1",
+			"results": [
+				{
+					"payload": "w32memory-acquisition_issues.urn_uuid_71e015d9-0aab-4a21-a867-7cd41e8fd2d2.xml",
+					"type": "application/vnd.mandiant.issues+xml"
+				}
+			]
+		},
+		{
+			"id": "urn:uuid:eebe5265-01fd-415b-8fd7-76fa88c9bb7c",
+			"generator": "w32drivers-signature",
+			"generatorVersion": "31.28.1",
+			"results": [
+				{
+					"payload": "w32drivers-signature_issues.urn_uuid_eebe5265-01fd-415b-8fd7-76fa88c9bb7c.xml",
+					"type": "application/vnd.mandiant.issues+xml"
+				}
+			]
+		},
+		{
+			"id": "urn:uuid:7db13de3-7605-456f-8287-37cf99630a5e",
+			"generator": "w32drivers-modulelist",
+			"generatorVersion": "31.28.1",
+			"results": [
+				{
+					"payload": "w32drivers-modulelist_issues.urn_uuid_7db13de3-7605-456f-8287-37cf99630a5e.xml",
+					"type": "application/vnd.mandiant.issues+xml"
+				}
+			]
+		},
+		{
+			"id": "urn:uuid:517a57f1-4657-4b12-a485-1b04aa145e52",
+			"generator": "w32kernel-hookdetection",
+			"generatorVersion": "31.28.1",
+			"results": [
+				{
+					"payload": "w32kernel-hookdetection_issues.urn_uuid_517a57f1-4657-4b12-a485-1b04aa145e52.xml",
+					"type": "application/vnd.mandiant.issues+xml"
+				}
+			]
+		},
+		{
+			"id": "urn:uuid:bc1f444a-9202-4fbd-a853-1841abbb3160",
+			"generator": "w32processes-memory",
+			"generatorVersion": "31.28.1",
+			"results": [
+				{
+					"payload": "w32processes-memory_issues.urn_uuid_bc1f444a-9202-4fbd-a853-1841abbb3160.xml",
+					"type": "application/vnd.mandiant.issues+xml"
+				}
+			]
+		},
+		{
+			"id": "urn:uuid:48e7ca88-1ece-4a79-b8cc-03377608095b",
+			"generator": "w32system",
+			"generatorVersion": "31.28.1",
+			"results": [
+				{
+					"payload": "w32system.urn_uuid_48e7ca88-1ece-4a79-b8cc-03377608095b.xml",
+					"type": "application/xml",
+					"timestamps": [
+						{
+							"event": "Started",
+							"time": "2023-05-14T11:47:07Z",
+							"skew": "+PT0S",
+							"offset": 0
+						},
+						{
+							"event": "Finished",
+							"time": "2023-05-14T11:47:07Z",
+							"skew": "+PT0S",
+							"offset": 3572
+						}
+					]
+				},
+				{
+					"payload": "w32system_issues.urn_uuid_48e7ca88-1ece-4a79-b8cc-03377608095b.xml",
+					"type": "application/vnd.mandiant.issues+xml"
+				}
+			]
+		},
+		{
+			"id": "urn:uuid:56fecff2-0bda-4642-a3ef-c7e93970af47",
+			"generator": "w32processes-API",
+			"generatorVersion": "31.28.1",
+			"results": [
+				{
+					"payload": "w32processes-API.urn_uuid_56fecff2-0bda-4642-a3ef-c7e93970af47.xml",
+					"type": "application/xml",
+					"timestamps": [
+						{
+							"event": "Started",
+							"time": "2023-05-14T11:47:08Z",
+							"skew": "+PT0S",
+							"offset": 0
+						},
+						{
+							"event": "Finished",
+							"time": "2023-05-14T11:47:08Z",
+							"skew": "+PT0S",
+							"offset": 78582
+						}
+					]
+				},
+				{
+					"payload": "w32processes-API_issues.urn_uuid_56fecff2-0bda-4642-a3ef-c7e93970af47.xml",
+					"type": "application/vnd.mandiant.issues+xml"
+				}
+			]
+		},
+		{
+			"id": "urn:uuid:f9140fb7-7ba6-4922-b6f6-5be1d210a034",
+			"generator": "w32processes-handle",
+			"generatorVersion": "31.28.1",
+			"results": [
+				{
+					"payload": "w32processes-handle.urn_uuid_f9140fb7-7ba6-4922-b6f6-5be1d210a034.xml",
+					"type": "application/xml",
+					"timestamps": [
+						{
+							"event": "Started",
+							"time": "2023-05-14T11:47:08Z",
+							"skew": "+PT0S",
+							"offset": 0
+						},
+						{
+							"event": "Finished",
+							"time": "2023-05-14T11:47:08Z",
+							"skew": "+PT0S",
+							"offset": 78586
+						}
+					]
+				},
+				{
+					"payload": "w32processes-handle_issues.urn_uuid_f9140fb7-7ba6-4922-b6f6-5be1d210a034.xml",
+					"type": "application/vnd.mandiant.issues+xml"
+				}
+			]
+		}
+	]
+}

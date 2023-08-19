@@ -1,0 +1,8 @@
+user 'lp': directory '/var/spool/lpd' does not exist
+user 'news': directory '/var/spool/news' does not exist
+user 'uucp': directory '/var/spool/uucp' does not exist
+user 'list': directory '/var/list' does not exist
+user 'irc': directory '/var/run/ircd' does not exist
+user 'gnats': directory '/var/lib/gnats' does not exist
+user 'nobody': directory '/nonexistent' does not exist
+pwck: no changes

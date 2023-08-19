@@ -1,0 +1,6 @@
+root
+no crontab for root
+ENDOFUSERCRON
+webadmin
+no crontab for webadmin
+ENDOFUSERCRON

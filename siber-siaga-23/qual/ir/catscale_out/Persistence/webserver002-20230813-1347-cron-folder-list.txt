@@ -1,0 +1,5 @@
+/var/spool/cron/
+/var/spool/cron/atspool/
+/var/spool/cron/atjobs/
+/var/spool/cron/atjobs/.SEQ
+/var/spool/cron/crontabs/

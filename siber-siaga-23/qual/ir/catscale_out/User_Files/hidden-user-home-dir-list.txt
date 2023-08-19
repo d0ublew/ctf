@@ -1,0 +1,10 @@
+/root/.profile
+/root/.mysql_history
+/root/.bashrc
+/home/webadmin/.sudo_as_admin_successful
+/home/webadmin/.profile
+/home/webadmin/.bash_logout
+/home/webadmin/.python_history
+/home/webadmin/.bash_history
+/home/webadmin/.mysql_history
+/home/webadmin/.bashrc

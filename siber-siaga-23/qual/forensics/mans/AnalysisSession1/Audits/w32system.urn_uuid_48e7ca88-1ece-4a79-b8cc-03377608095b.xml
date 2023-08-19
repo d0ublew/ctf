@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itemList generator="w32system" generatorVersion="31.28.1" itemSchemaLocation="http://schemas.mandiant.com/2013/11/systeminfoitem.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://schemas.mandiant.com/2013/11/mir.w32system.xsd">
+ <SystemInfoItem created="2023-05-14T11:47:07Z" uid="068eb74b-492c-4962-bae3-acbfa2b14b46">
+  <machine>DESKTOP-435SF47</machine>
+  <uptime>PT3128S</uptime>
+  <containmentState>normal</containmentState>
+  <biosInfo>
+   <biosDate>12/05/2022</biosDate>
+   <biosVersion>VMware, Inc. VMW201.00V.20904234.B64.2212051119</biosVersion>
+   <biosType>Unknown</biosType>
+  </biosInfo>
+  <directory>C:\Windows\system32</directory>
+  <drives>c:,d:,e:</drives>
+  <procType>Multiprocessor Free</procType>
+  <regOwner>mare</regOwner>
+  <processor>Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz</processor>
+  <OS>Windows 10 Enterprise 19044</OS>
+  <productName>Windows 10 Enterprise</productName>
+  <buildNumber>19044</buildNumber>
+  <productID>00329-00000-00003-AA253</productID>
+  <installDate>2023-04-01T22:55:13Z</installDate>
+  <OSbitness>64-bit</OSbitness>
+  <timezoneDST>Malay Peninsula Daylight Time</timezoneDST>
+  <timezoneStandard>Malay Peninsula Standard Time</timezoneStandard>
+  <timezone>Malay Peninsula Standard Time</timezone>
+  <gmtoffset>+PT8H</gmtoffset>
+  <clockSkew>+PT0S</clockSkew>
+  <date>2023-05-14T11:47:07Z</date>
+  <stateAgentStatus>monitoring_disabled</stateAgentStatus>
+  <hostname>DESKTOP-435SF47</hostname>
+  <domain>WORKGROUP</domain>
+  <networkArray>
+   <networkInfo>
+    <adapter>{4380E106-0381-4C7A-8D3F-9286286E6593}</adapter>
+    <description>Intel(R) 82574L Gigabit Network Connection</description>
+    <MAC>00-0c-29-45-86-2c</MAC>
+    <ipArray>
+     <ipInfo>
+      <ipv6Address>fe80::39ab:a1f5:66ca:a5b3</ipv6Address>
+     </ipInfo>
+     <ipInfo>
+      <subnetMask>255.255.255.0</subnetMask>
+      <ipAddress>192.168.206.134</ipAddress>
+     </ipInfo>
+    </ipArray>
+    <dhcpServerArray>
+     <dhcpServer>192.168.206.254</dhcpServer>
+    </dhcpServerArray>
+    <dhcpLeaseObtained>2023-05-14T11:46:51Z</dhcpLeaseObtained>
+    <dhcpLeaseExpires>2023-05-14T12:16:51Z</dhcpLeaseExpires>
+    <ipGatewayArray>
+     <ipGateway>192.168.206.2</ipGateway>
+    </ipGatewayArray>
+   </networkInfo>
+   <networkInfo>
+    <adapter>{1B44D2AC-B678-4BB9-A37B-B72647DBB31C}</adapter>
+    <description>Bluetooth Device (Personal Area Network)</description>
+    <MAC>60-f2-62-15-8a-3c</MAC>
+    <ipArray>
+     <ipInfo>
+      <ipv6Address>fe80::78dc:2432:6835:bb64</ipv6Address>
+     </ipInfo>
+     <ipInfo>
+      <ipAddress>169.254.187.100</ipAddress>
+     </ipInfo>
+    </ipArray>
+   </networkInfo>
+   <networkInfo>
+    <adapter>{C2BA0B98-D0DF-11ED-BE80-806E6F6E6963}</adapter>
+    <description>Software Loopback Interface 1</description>
+    <ipArray>
+     <ipInfo>
+      <ipv6Address>::1</ipv6Address>
+     </ipInfo>
+     <ipInfo>
+      <ipAddress>127.0.0.1</ipAddress>
+     </ipInfo>
+    </ipArray>
+   </networkInfo>
+  </networkArray>
+  <primaryIpv4Address>192.168.206.134</primaryIpv4Address>
+  <primaryIpAddress>192.168.206.134</primaryIpAddress>
+  <MAC>00-0c-29-45-86-2c</MAC>
+  <totalphysical>8588943360</totalphysical>
+  <availphysical>6150430720</availphysical>
+  <user>mare</user>
+  <loggedOnUser>DESKTOP-435SF47\mare,Font Driver Host\UMFD-0,Font Driver Host\UMFD-1,WORKGROUP\DESKTOP-435SF47$</loggedOnUser>
+  <appVersion>31.28.1</appVersion>
+  <platform>win</platform>
+  <appCreated>2023-05-14T11:46:56Z</appCreated>
+ </SystemInfoItem>
+</itemList>

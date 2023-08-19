@@ -1,0 +1,25 @@
+Foremost version 1.5.7 by Jesse Kornblum, Kris Kendall, and Nick Mikus
+Audit File
+
+Foremost started at Tue Aug 15 11:08:16 2023
+Invocation: foremost sibersiaga.pdf 
+Output directory: /home/doublew/projects/ctf/siber-siaga-23/final/rev/pub/output
+Configuration file: /etc/foremost.conf
+------------------------------------------------------------------
+File: sibersiaga.pdf
+Start: Tue Aug 15 11:08:16 2023
+Length: 340 KB (348574 bytes)
+ 
+Num	 Name (bs=512)	       Size	 File Offset	 Comment 
+
+0:	00000000.jpg 	     328 KB 	        387 	 
+1:	00000000.pdf 	     340 KB 	          0 	 
+Finish: Tue Aug 15 11:08:16 2023
+
+2 FILES EXTRACTED
+	
+jpg:= 1
+pdf:= 1
+------------------------------------------------------------------
+
+Foremost finished at Tue Aug 15 11:08:16 2023

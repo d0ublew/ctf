@@ -1,0 +1,21 @@
+oscheck: distrib_id=ubuntu distrib_release=20.04 distrib_codename=focal distrib_description="ubuntu 20.04.5 lts" name="ubuntu" version="20.04.5 lts (focal fossa)" id=ubuntu id_like=debian pretty_name="ubuntu 20.04.5 lts" version_id="20.04" home_url="https://www.ubuntu.com/" support_url="https://help.ubuntu.com/" bug_report_url="https://bugs.launchpad.net/ubuntu/" privacy_policy_url="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy" version_codename=focal ubuntu_codename=focal
+Date : Sun 13 Aug 2023 01:47:15 PM UTC +00:00
+================================ Console Errors ================================
+tar: Removing leading `/' from member names
+tar: Removing leading `/' from hard link targets
+cat: /proc/21994/status: No such file or directory
+lsof: "-e /run/user/1000/gvfs" is not a mounted file system.
+lsof 4.93.2
+ latest revision: https://github.com/lsof-org/lsof
+ latest FAQ: https://github.com/lsof-org/lsof/blob/master/00FAQ
+ latest (non-formatted) man page: https://github.com/lsof-org/lsof/blob/master/Lsof.8
+ usage: [-?abhKlnNoOPRtUvVX] [+|-c c] [+|-d s] [+D D] [+|-E] [+|-e s] [+|-f[gG]]
+ [-F [f]] [-g [s]] [-i [i]] [+|-L [l]] [+m [m]] [+|-M] [-o [o]] [-p s]
+ [+|-r [t]] [-s [p:s]] [-S [t]] [-T [t]] [-u s] [+|-w] [-x [fl]] [--] [names]
+Use the ``-h'' option to get more help information.
+Utmp dump of /run/utmp
+tar: Removing leading `/' from member names
+tar: Removing leading `/' from member names
+tar: Removing leading `/' from member names
+tar: Removing leading `/' from hard link targets
+tar: Removing leading `/' from member names
