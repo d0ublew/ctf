@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "hrm-cpu": "^0.2.3",
+    "hrm-image-decoder": "^0.1.1"
+  }
+}

@@ -7,3 +7,6 @@
 [submodule "ropemporium"]
 	path = ropemporium
 	url = https://github.com/d0ublew/ropemporium-writeup
+[submodule "sekaictf-2023/misc/hrm/humanresourcemachine"]
+	path = sekaictf-2023/misc/hrm/humanresourcemachine
+	url = https://github.com/gohkhoonhiang/humanresourcemachine.git
