@@ -1,0 +1,7 @@
+1 = Th1nk
+2 = R34L
+3 = th15
+4 = I
+5 = D0nT
+
+DUCTF{I_D0nT_Th1nk_th15_1s_R34L_C}
