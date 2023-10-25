@@ -7,8 +7,3 @@ all:
 	# cp pwn ./rootfs/pwn
 	# ./compress.sh
 	# ./run.sh
-
-debug:
-	$(CC) $(CFLAGS) -DDEBUG -o pwn.s pwn.c
-	musl-gcc -static -o pwn pwn.s
-

