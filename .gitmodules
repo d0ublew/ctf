@@ -10,3 +10,6 @@
 [submodule "sekaictf-2023/misc/hrm/humanresourcemachine"]
 	path = sekaictf-2023/misc/hrm/humanresourcemachine
 	url = https://github.com/gohkhoonhiang/humanresourcemachine.git
+[submodule "qiling-lab/rootfs"]
+	path = qiling-lab/rootfs
+	url = https://github.com/qilingframework/rootfs.git
