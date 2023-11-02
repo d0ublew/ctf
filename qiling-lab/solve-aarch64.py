@@ -106,6 +106,7 @@ def challenge10(ql: Qiling):
 
 
 def challenge11(ql: Qiling):
+    # https://github.com/unicorn-engine/unicorn/blob/d4b92485b1a228fb003e1218e42f6c778c655809/include/unicorn/arm64.h#L373
     def callback(ql: Qiling, reg, pcp_reg):
         if ql.arch.regs.arch_pc < QILING_BASE or ql.arch.regs.arch_pc >= QILING_BASE + 0x2000:
             return (0, False)
