@@ -13,3 +13,6 @@
 [submodule "qiling-lab/rootfs"]
 	path = qiling-lab/rootfs
 	url = https://github.com/qilingframework/rootfs.git
+[submodule "1337up-livectf/rev/lunar-ws/debugger-lua"]
+	path = 1337up-livectf/rev/lunar-ws/debugger-lua
+	url = https://github.com/slembcke/debugger.lua.git
