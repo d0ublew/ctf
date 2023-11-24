@@ -1,0 +1,76 @@
+{
+  "projectVersion": 1,
+  "files": [
+    "memdump.apk"
+  ],
+  "treeExpansions": [
+    [
+      "Resources",
+      "memdump.apk"
+    ],
+    [
+      "com",
+      "Source code",
+      "memdump.apk"
+    ],
+    [
+      "example.mynative",
+      "com",
+      "Source code",
+      "memdump.apk"
+    ],
+    [
+      "lib",
+      "Resources",
+      "memdump.apk"
+    ],
+    [
+      "arm64-v8a",
+      "lib",
+      "Resources",
+      "memdump.apk"
+    ]
+  ],
+  "codeData": {
+    "comments": [],
+    "renames": []
+  },
+  "openTabs": [
+    {
+      "type": "resource",
+      "tabPath": "AndroidManifest.xml",
+      "subPath": "",
+      "caret": 1308,
+      "view": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "type": "class",
+      "tabPath": "com.example.mynative.MainActivity",
+      "subPath": "java",
+      "caret": 8598,
+      "view": {
+        "x": 0,
+        "y": 2759
+      }
+    },
+    {
+      "type": "class",
+      "tabPath": "com.example.mynative.R",
+      "subPath": "java",
+      "caret": 125,
+      "view": {
+        "x": 0,
+        "y": 378
+      }
+    }
+  ],
+  "activeTab": 1,
+  "cacheDir": "memdump.apk.cache",
+  "enableLiveReload": false,
+  "searchHistory": [
+    "System.l"
+  ]
+}
