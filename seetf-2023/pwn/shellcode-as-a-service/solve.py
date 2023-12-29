@@ -3,9 +3,10 @@
 # type: ignore
 # flake8: noqa
 
-from pwn import *
 import string
 import sys
+
+from pwn import *
 
 elf = context.binary = ELF("./chall")
 
@@ -22,6 +23,7 @@ def start(argv=[], *a, **kw):
 env = {}
 
 stage1 = asm("""\
+xor rax, rax
 push rdx
 pop rsi
 push rax

