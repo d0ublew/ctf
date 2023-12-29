@@ -1,0 +1,24 @@
+00g  R@brUc3E
+00g**R@brUc3E/1337pr.ost/20aaaaaaaa/5pizza/AMu$E`0R.9AZe/ZQETXHOLMFKDVNUBWYGIPACJRS/ob5cUr3/fin/
+00g**R@brUc3E/1337pr.ost/20aaaaaaaa/5pizza/AMu$E`0R.9AZe/YPXEKCZXYIGMNOXNMXPYCXGXN/ob5cUr3/fin/
+
+@:
+  - for VirtualAlloc flProtect arg (@, 0x40, PAGE_EXECUTE_READWRITE)
+
+brUc3E:
+  - brUc3 retrieved from debugging shellcode 0, some constant value xored with `ten`
+  - E for shellcode 0 opcode at offset 0x41 `mov byte ptr [rbp-0xc], 0x56`, E => `rbp`
+
+1337pr.ost:
+  - deduced from fanta
+  - need to pass 0x11333377 comparison w/ our digit, if digit is 1234 then 0x11223344 is compared with 0x11333377 (desired value)
+  - pr.ost from debugging (some constant xor with 0x1a, 0x2b, 0x3c, 0x4d)
+
+20aaaaaaaa:
+  - 20 (in base 4 == 8) and string of length 8
+  - the value 8 because of `GetTickCount >= x + 8000`
+
+5pizza:
+  - 5: not yet sure, could be other char
+  - pizza: from debugging (from fanta)
+

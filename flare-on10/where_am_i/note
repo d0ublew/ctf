@@ -1,0 +1,18 @@
+sub_9305: get current process base address
+sub_9782: ROL(x, n)
+sub_a451: returns base+0x3fc
+sub_ce51: returns base+0x3f8
+sub_d12b: nothing
+
+loc_8825: virtualalloc
+
+loc_d17c (base+0x6538): WriteProcessMemory
+
+
+attach explorer.exe
+base+0x511 -> next shellcode
+
+base+0x1291 -> next shellcode (call esi)
+
+
+
