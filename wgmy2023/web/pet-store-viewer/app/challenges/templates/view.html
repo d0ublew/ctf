@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/view.css') }}"> 
+    <style>
+       
+    </style>
+</head>
+<body>
+    <div id="header">
+        Item Details
+    </div>
+
+    <div id="item-details-container">>
+        <div class="item-details-card">
+            <img src="{{ url_for('static', filename='images/'+value[3]) }}" alt="Item Image">
+            <div class="item-details-content">
+                <h2>{{ value[0] }}</h2>
+                <p class="label">Price:</p>
+                <p>{{ value[1] }}</p>
+                <p class="label">Description:</p>
+                <p>{{ value[2] }}</p>
+                <p class="label">Gender:</p>
+                <p>{{ value[4] }}</p>
+                <p class="label">Size:</p>
+                <p>{{ value[5] }}</p>
+            </div>
+        </div>
+        <a href="/" class="back-button">Back</a>
+    </div>
+</body>
+</html>

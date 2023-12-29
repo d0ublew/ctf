@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    meta.helm.sh/release-name: wgmy-webtestonetwothree
+    meta.helm.sh/release-namespace: wgmy
+  creationTimestamp: "2023-12-15T14:14:18Z"
+  generation: 1
+  labels:
+    app.kubernetes.io/instance: wgmy-webtestonetwothree
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: frontend
+    app.kubernetes.io/version: 0.1.0
+    helm.sh/chart: frontend-0.1.0
+  name: wgmy-webtestonetwothree-frontend
+  namespace: wgmy
+  resourceVersion: "1797"
+  uid: a8c63194-0eb2-4005-abe2-14138c2b615b
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: wgmy-webtestonetwothree
+      app.kubernetes.io/name: frontend
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-inject-secret-flag: kv/data/flag_for_secret
+        vault.hashicorp.com/role: wgmy
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/instance: wgmy-webtestonetwothree
+        app.kubernetes.io/name: frontend
+    spec:
+      containers:
+      - image: nginx:1.25-alpine
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: http
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: frontend
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: http
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {}
+        securityContext: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html
+          name: html
+        - mountPath: /etc/nginx/conf.d
+          name: conf
+        - mountPath: /usr/share/nginx/.lemme_try_hiding_flag_with_dot_in_front
+          name: flag
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: wgmy-webtestonetwothree-frontend
+      serviceAccountName: wgmy-webtestonetwothree-frontend
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: wgmy-webtestonetwothree-frontend-html
+        name: html
+      - configMap:
+          defaultMode: 420
+          name: wgmy-webtestonetwothree-frontend-conf
+        name: conf
+      - name: flag
+        secret:
+          defaultMode: 420
+          items:
+          - key: flag
+            path: flag_for_status
+          secretName: wgmy-webtestonetwothree-frontend-flag
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2023-12-15T14:14:20Z"
+    lastUpdateTime: "2023-12-15T14:14:20Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2023-12-15T14:14:18Z"
+    lastUpdateTime: "2023-12-15T14:14:20Z"
+    message: ReplicaSet "wgmy-webtestonetwothree-frontend-556ccd7cf" has successfully
+      progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  observedGeneration: 1
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1
+  updatedReplicas: 1
