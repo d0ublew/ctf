@@ -1,0 +1,1 @@
+LosCTF{b0rr0wed_c0de_chunks_0n_64bit_x86_ready_f0r_r0p}
