@@ -7,3 +7,4 @@ pwn/pwn.college/key.pub
 node_modules/
 .envrc
 .python-version
+venv/
