@@ -82,11 +82,17 @@ cd ./out.gn/x64.debug
 - https://starlabs.sg/blog/2022/12-deconstructing-and-exploiting-cve-2020-6418
 - https://www.numencyber.com/use-wasm-to-bypass-latest-chrome-v8sbx-again/
 
+- https://v8.github.io/api/head/
+- https://v8.dev/blog/pointer-compression
+- https://mem2019.github.io/jekyll/update/2022/02/06/DiceCTF-Memory-Hole.html
+- https://docs.google.com/document/d/1HSap8-J3HcrZvT7-5NsbYWcjfc0BVoops5TDHZNsnko/edit#heading=h.suker1x4zgzz
 - https://jhalon.github.io/chrome-browser-exploitation-1/
 - https://blog.theori.io/a-deep-dive-into-v8-sandbox-escape-technique-used-in-in-the-wild-exploit-d5dcf30681d4
 - https://anvbis.au/posts/exploring-historical-v8-heap-sandbox-escapes-i/
 - https://blog.kylebot.net/2022/02/06/DiceCTF-2022-memory-hole/
 - https://mgp25.com/blog/2021/browser-exploitation/
+- https://faraz.faith/2019-12-13-starctf-oob-v8-indepth/
+- https://v8.dev/blog/elements-kinds
 
 ## Appendix
 

