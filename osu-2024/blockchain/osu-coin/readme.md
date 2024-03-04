@@ -2,7 +2,9 @@
 
 ## Setup
 
-### Account Creation
+### MetaMask
+
+#### Account Creation
 
 1. Create an account on MetaMask
 2. Go to `Settings > Networks > Add a network`
@@ -14,13 +16,19 @@
 7. Enter any currency symbol
 8. Save
 
-### Getting Address, Funds, and Private Key
+#### Getting Address, Funds, and Private Key
 
 1. Go to `Account details`
 2. The address would be shown in blue box (hexadecimal value)
 3. For private key, just click on `Show private key`
 4. To get some funds, head to the provided faucet URL and paste in your account address
     > ETH Testnet Faucet: http://45.61.132.140:8080/
+
+### Foundry
+
+```sh
+cast wallet new
+```
 
 ## Solution
 
