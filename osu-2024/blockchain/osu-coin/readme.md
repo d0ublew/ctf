@@ -35,6 +35,8 @@ cast wallet new
 > [!NOTE]
 > Remember to prefix the private key with `0x`
 
+### Foundry Cast
+
 ```sh
 nc 45.61.132.140 20000
 # choose 1 and save the deployer account and token
@@ -63,6 +65,16 @@ cast call $COIN_ADDR --rpc-url $RPC_ENDPOINT "balanceOf(address)(uint128)" $HACK
 cast call $SETUP_ADDR --rpc-url $RPC_ENDPOINT "isSolved()(bool)"
 nc 45.61.132.140 20000
 # choose 3 and profit
+```
+
+### Foundry Forge
+
+```sh
+# on-chain simulation
+forge script script/Solve.s.sol:SolveScript --rpc-url $RPC_ENDPOINT
+
+# real
+forge script script/Solve.s.sol:SolveScript --rpc-url $RPC_ENDPOINT --broadcast
 ```
 
 ## Appendix

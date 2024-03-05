@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: UNLICENSED
 
 pragma solidity ^0.8.17;
 
@@ -6,7 +6,6 @@ import "forge-std/Test.sol";
 import "../src/Setup.sol";
 
 contract SolveTest is Test {
-    uint256 osuFork;
     address player = makeAddr("player");
     Setup public s;
 

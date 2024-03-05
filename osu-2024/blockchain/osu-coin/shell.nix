@@ -1,6 +1,18 @@
 with (import <nixpkgs> {});
+let
+    my-pypkgs = pypkgs: with pypkgs; [
+        pip
+    ];
+    my-python = python3.withPackages my-pypkgs;
+in
 mkShell {
     buildInputs = [
-        jq
+        my-python
+        python3Packages.venvShellHook
+        # jq
+        # solc
+        # fx
+        # jless
     ];
+    venvDir = "venv";
 }
