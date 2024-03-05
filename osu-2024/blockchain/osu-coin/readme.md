@@ -77,6 +77,10 @@ forge script script/Solve.s.sol:SolveScript --rpc-url $RPC_ENDPOINT
 forge script script/Solve.s.sol:SolveScript --rpc-url $RPC_ENDPOINT --broadcast
 ```
 
+## Useful Links
+
+- <https://github.com/YanhuiJessica/cheb3>
+
 ## Appendix
 
 Use `cast call` if the function is declared with `view` keyword, otherwise use `cast send`
