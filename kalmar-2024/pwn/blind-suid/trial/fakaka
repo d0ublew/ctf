@@ -1,0 +1,452 @@
+rip: 0x7f4a3e19f290
+rax: 0
+rbx: 0
+rcx: 0
+rdx: 0
+rdi: 0
+rsi: 0
+rsp: 0x7ffd2ce155d0
+rbp: 0
+r8: 0
+r9: 0
+r10: 0
+r11: 0
+r12: 0
+r13: 0
+r14: 0
+r15: 0
+---
+rip: 0x55f70618c160
+---
+rip: 0x55f70618c164
+---
+rip: 0x55f70618c166
+---
+rip: 0x55f70618c169
+---
+rip: 0x55f70618c16a
+---
+rip: 0x55f70618c16d
+---
+rip: 0x55f70618c171
+---
+rip: 0x55f70618c172
+---
+rip: 0x55f70618c173
+---
+rip: 0x55f70618c176
+---
+rip: 0x55f70618c178
+---
+rip: 0x55f70618c17f
+---
+rip: 0x7f4a3df7adc0
+rax: 0x1c
+rbx: 0
+rcx: 0
+rdx: 0x7ffd2ce155d8
+rdi: 0x55f70618c249
+rsi: 0x1
+rsp: 0x7ffd2ce155b8
+rbp: 0
+r8: 0
+r9: 0x7f4a3e185040
+r10: 0x7f4a3e17f860
+r11: 0x306
+r12: 0x55f70618c160
+r13: 0x7ffd2ce155d0
+r14: 0
+r15: 0
+---
+rip: 0x55f70618c000
+---
+rip: 0x55f70618c004
+---
+rip: 0x55f70618c008
+---
+rip: 0x55f70618c00f
+---
+rip: 0x55f70618c012
+---
+rip: 0x55f70618c016
+---
+rip: 0x55f70618c01a
+---
+rip: 0x7f4a3df7ae68
+rax: 0
+rbx: 0
+rcx: 0x55f70618c000
+rdx: 0x7ffd2ce155e8
+rdi: 0x1
+rsi: 0x7ffd2ce155d8
+rsp: 0x7ffd2ce15570
+rbp: 0x1
+r8: 0x7f4a3e16cf10
+r9: 0x7f4a3e185040
+r10: 0x7f4a3e17f860
+r11: 0x306
+r12: 0x7ffd2ce155d8
+r13: 0x55f70618c249
+r14: 0x7f4a3e1ba2e0
+r15: 0x7f4a3e1b9040
+---
+rip: 0x55f70618c240
+---
+rip: 0x55f70618c244
+---
+rip: 0x55f70618c1c0
+---
+rip: 0x55f70618c1c7
+---
+rip: 0x55f70618c1ce
+---
+rip: 0x55f70618c1d1
+---
+rip: 0x55f70618c1d4
+---
+rip: 0x55f70618c1d8
+---
+rip: 0x55f70618c1dc
+---
+rip: 0x55f70618c1df
+---
+rip: 0x55f70618c1e2
+---
+rip: 0x55f70618c1f8
+---
+rip: 0x7f4a3df7aebb
+rax: 0
+rbx: 0
+rcx: 0x55f70618ed78
+rdx: 0x7ffd2ce155e8
+rdi: 0x55f70618f010
+rsi: 0
+rsp: 0x7ffd2ce15570
+rbp: 0x1
+r8: 0x7f4a3e16cf10
+r9: 0x7f4a3e185040
+r10: 0x7f4a3e17f860
+r11: 0x306
+r12: 0x7ffd2ce155d8
+r13: 0x55f70618c249
+r14: 0x55f70618ed80
+r15: 0x7f4a3e1b9040
+---
+rip: 0x55f70618c249
+---
+rip: 0x55f70618c24d
+---
+rip: 0x55f70618c24e
+---
+rip: 0x55f70618c251
+---
+rip: 0x55f70618c255
+---
+rip: 0x55f70618c258
+---
+rip: 0x55f70618c25c
+---
+rip: 0x55f70618c265
+---
+rip: 0x55f70618c269
+---
+rip: 0x55f70618c26b
+---
+rip: 0x55f70618c272
+---
+rip: 0x55f70618c275
+---
+rip: 0x55f70618c27a
+---
+rip: 0x55f70618c100
+---
+rip: 0x55f70618c104
+---
+rip: 0x7f4a3dfb16f0
+rax: 0
+rbx: 0
+rcx: 0x55f70618ed80
+rdx: 0x7ffd2ce155e8
+rdi: 0x55f70618d017
+rsi: 0x7ffd2ce155d8
+rsp: 0x7ffd2ce15458
+rbp: 0x7ffd2ce154c0
+r8: 0x7f4a3e16cf10
+r9: 0x7f4a3e185040
+r10: 0x7f4a3e17f908
+r11: 0x7f4a3e19a660
+r12: 0x7ffd2ce155d8
+r13: 0x55f70618c249
+r14: 0x55f70618ed80
+r15: 0x7f4a3e1b9040
+---
+rip: 0x55f70618c27f
+---
+rip: 0x55f70618c286
+---
+rip: 0x55f70618c28a
+---
+rip: 0x55f70618c28f
+---
+rip: 0x55f70618c292
+---
+rip: 0x55f70618c130
+---
+rip: 0x55f70618c134
+---
+rip: 0x7f4a3dfd0380
+rax: 0x7ffd2ce15490
+rbx: 0
+rcx: 0x55f70618d021
+rdx: 0x7f4a3e16baa0
+rdi: 0x7ffd2ce15490
+rsi: 0x20
+rsp: 0x7ffd2ce15458
+rbp: 0x7ffd2ce154c0
+r8: 0
+r9: 0x55f70635f2a0
+r10: 0x77
+r11: 0x7f4a3e16bce0
+r12: 0x7ffd2ce155d8
+r13: 0x55f70618c249
+r14: 0x55f70618ed80
+r15: 0x7f4a3e1b9040
+---
+Password: abcdabcd
+rip: 0x55f70618c297
+---
+rip: 0x55f70618c29a
+---
+rip: 0x55f70618c2a6
+---
+rip: 0x55f70618c2aa
+---
+rip: 0x55f70618c2b1
+---
+rip: 0x55f70618c2b4
+---
+rip: 0x55f70618c2b7
+---
+rip: 0x55f70618c120
+---
+rip: 0x55f70618c124
+---
+rip: 0x7f4a3e0e95a0
+rax: 0x7ffd2ce15490
+rbx: 0
+rcx: 0x55f70635f6b9
+rdx: 0x55f70618d022
+rdi: 0x7ffd2ce15490
+rsi: 0x55f70618d022
+rsp: 0x7ffd2ce15458
+rbp: 0x7ffd2ce154c0
+r8: 0
+r9: 0x55f70635f6b0
+r10: 0x77
+r11: 0x346
+r12: 0x7ffd2ce155d8
+r13: 0x55f70618c249
+r14: 0x55f70618ed80
+r15: 0x7f4a3e1b9040
+---
+rip: 0x55f70618c2bc
+---
+rip: 0x55f70618c2c1
+---
+rip: 0x55f70618c2c5
+---
+rip: 0x55f70618c2c8
+---
+rip: 0x55f70618c2cf
+---
+rip: 0x55f70618c2d2
+---
+rip: 0x55f70618c140
+---
+rip: 0x55f70618c144
+---
+rip: 0x7f4a3e0e9940
+rax: 0x55f70618d008
+rbx: 0
+rcx: 0x8
+rdx: 0x1
+rdi: 0x55f70618d008
+rsi: 0x7ffd2ce15490
+rsp: 0x7ffd2ce15458
+rbp: 0x7ffd2ce154c0
+r8: 0x55f70618d020
+r9: 0x55f70635f6b0
+r10: 0x77
+r11: 0x346
+r12: 0x7ffd2ce155d8
+r13: 0x55f70618c249
+r14: 0x55f70618ed80
+r15: 0x7f4a3e1b9040
+---
+rip: 0x55f70618c2d7
+---
+rip: 0x55f70618c2d9
+---
+rip: 0x55f70618c2db
+---
+rip: 0x55f70618c2e2
+---
+rip: 0x55f70618c2e5
+---
+rip: 0x55f70618c0d0
+---
+rip: 0x55f70618c0d4
+---
+rip: 0x7f4a3dfd1e50
+rax: 0x55f70618d024
+rbx: 0
+rcx: 0xffffffff
+rdx: 0x61
+rdi: 0x55f70618d024
+rsi: 0x7ffd2ce15490
+rsp: 0x7ffd2ce15458
+rbp: 0x7ffd2ce154c0
+r8: 0x55f70618d020
+r9: 0x55f70635f6b0
+r10: 0x77
+r11: 0x346
+r12: 0x7ffd2ce155d8
+r13: 0x55f70618c249
+r14: 0x55f70618ed80
+r15: 0x7f4a3e1b9040
+---
+Wrong password!
+rip: 0x55f70618c2ea
+---
+rip: 0x55f70618c2ef
+---
+rip: 0x55f70618c607
+---
+rip: 0x55f70618c60b
+---
+rip: 0x55f70618c614
+---
+rip: 0x55f70618c61b
+---
+rip: 0x55f70618c61c
+---
+rip: 0x7f4a3df7ad90
+rax: 0xffffffff
+rbx: 0
+rcx: 0x7f4a3e065887
+rdx: 0
+rdi: 0x7f4a3e16da70
+rsi: 0x1
+rsp: 0x7ffd2ce154d0
+rbp: 0x1
+r8: 0x7f4a3e16da70
+r9: 0x55f70635f6b0
+r10: 0x77
+r11: 0x346
+r12: 0x7ffd2ce155d8
+r13: 0x55f70618c249
+r14: 0x55f70618ed80
+r15: 0x7f4a3e1b9040
+---
+rip: 0x55f70618c200
+---
+rip: 0x55f70618c204
+---
+rip: 0x55f70618c20b
+---
+rip: 0x55f70618c20d
+---
+rip: 0x55f70618c20e
+---
+rip: 0x55f70618c216
+---
+rip: 0x55f70618c219
+---
+rip: 0x55f70618c21b
+---
+rip: 0x55f70618c222
+---
+rip: 0x55f70618c0c0
+---
+rip: 0x55f70618c0c4
+---
+rip: 0x7f4a3df969a0
+rax: 0x55f70618ed80
+rbx: 0x7f4a3e1b9040
+rcx: 0x1
+rdx: 0x1
+rdi: 0x55f70618f008
+rsi: 0x55f70618ed80
+rsp: 0x7ffd2ce153b8
+rbp: 0x7ffd2ce153c0
+r8: 0x7ffd2ce153d0
+r9: 0x20
+r10: 0
+r11: 0x7ffd2ce15300
+r12: 0
+r13: 0x7f4a3e1b9a48
+r14: 0x7ffd2ce153d0
+r15: 0x7f4a3e1ba2e0
+---
+rip: 0x55f70618c227
+---
+rip: 0x55f70618c190
+---
+rip: 0x55f70618c197
+---
+rip: 0x55f70618c19e
+---
+rip: 0x55f70618c1a1
+---
+rip: 0x55f70618c1b8
+---
+rip: 0x55f70618c22c
+---
+rip: 0x55f70618c233
+---
+rip: 0x55f70618c234
+---
+rip: 0x7f4a3e18524e
+rax: 0x55f70618f010
+rbx: 0x7f4a3e1b9040
+rcx: 0
+rdx: 0x1
+rdi: 0x55f70618f010
+rsi: 0
+rsp: 0x7ffd2ce153d0
+rbp: 0x7ffd2ce15450
+r8: 0x7ffd2ce153d0
+r9: 0x20
+r10: 0
+r11: 0x7ffd2ce15300
+r12: 0
+r13: 0x7f4a3e1b9a48
+r14: 0x7ffd2ce153d0
+r15: 0x7f4a3e1ba2e0
+---
+rip: 0x55f70618c620
+---
+rip: 0x55f70618c624
+---
+rip: 0x55f70618c628
+---
+rip: 0x55f70618c62c
+---
+rip: 0x7f4a3e185274
+rax: 0x55f70618c620
+rbx: 0x7f4a3e1b9040
+rcx: 0
+rdx: 0x55f70618ed80
+rdi: 0x55f70618f010
+rsi: 0
+rsp: 0x7ffd2ce153d0
+rbp: 0x7ffd2ce15450
+r8: 0x7ffd2ce153d0
+r9: 0x20
+r10: 0
+r11: 0x7ffd2ce15300
+r12: 0
+r13: 0x7f4a3e1b9a48
+r14: 0x7ffd2ce153d0
+r15: 0x7f4a3e1ba2e0
+---
