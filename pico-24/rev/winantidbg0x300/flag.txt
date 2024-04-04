@@ -1,0 +1,1 @@
+picoCTF{Wind0ws_antid3bg_0x300_daad7155}

@@ -1,0 +1,99 @@
+  3           0 BUILD_LIST               0
+              2 LOAD_CONST               0 ((4, 54, 41, 0, 112, 32, 25, 49, 33, 3, 0, 0, 57, 32, 108, 23, 48, 4, 9, 70, 7, 110, 36, 8, 108, 7, 49, 10, 4, 86, 43, 59, 124, 86, 0, 69, 59, 47, 93, 78))
+              4 LIST_EXTEND              1
+              6 STORE_NAME               0 (input_list)
+
+ 46           8 LOAD_CONST               1 ('J')
+             10 STORE_NAME               1 (key_str)
+
+ 47          12 LOAD_CONST               2 ('_')
+             14 LOAD_NAME                1 (key_str)
+             16 BINARY_ADD
+             18 STORE_NAME               1 (key_str)
+
+ 48          20 LOAD_NAME                1 (key_str)
+             22 LOAD_CONST               3 ('o')
+             24 BINARY_ADD
+             26 STORE_NAME               1 (key_str)
+
+ 49          28 LOAD_NAME                1 (key_str)
+             30 LOAD_CONST               4 ('3')
+             32 BINARY_ADD
+             34 STORE_NAME               1 (key_str)
+
+ 50          36 LOAD_CONST               5 ('t')
+             38 LOAD_NAME                1 (key_str)
+             40 BINARY_ADD
+             42 STORE_NAME               1 (key_str)
+
+ 52          44 LOAD_CONST               6 (<code object <listcomp> at 0x7fac202230e0, file "ori.py", line 52>)
+             46 LOAD_CONST               7 ('<listcomp>')
+             48 MAKE_FUNCTION            0
+             50 LOAD_NAME                1 (key_str)
+             52 GET_ITER
+             54 CALL_FUNCTION            1
+             56 STORE_NAME               2 (key_list)
+
+ 54     >>   58 LOAD_NAME                3 (len)
+             60 LOAD_NAME                2 (key_list)
+             62 CALL_FUNCTION            1
+             64 LOAD_NAME                3 (len)
+             66 LOAD_NAME                0 (input_list)
+             68 CALL_FUNCTION            1
+             70 COMPARE_OP               0 (<)
+             72 POP_JUMP_IF_FALSE       86
+
+ 55          74 LOAD_NAME                2 (key_list)
+             76 LOAD_METHOD              4 (extend)
+             78 LOAD_NAME                2 (key_list)
+             80 CALL_METHOD              1
+             82 POP_TOP
+             84 JUMP_ABSOLUTE           58
+
+ 57     >>   86 LOAD_CONST               8 (<code object <listcomp> at 0x7fac20223190, file "ori.py", line 57>)
+             88 LOAD_CONST               7 ('<listcomp>')
+             90 MAKE_FUNCTION            0
+             92 LOAD_NAME                5 (zip)
+             94 LOAD_NAME                0 (input_list)
+             96 LOAD_NAME                2 (key_list)
+             98 CALL_FUNCTION            2
+            100 GET_ITER
+            102 CALL_FUNCTION            1
+            104 STORE_NAME               6 (result)
+
+ 59         106 LOAD_CONST               9 ('')
+            108 LOAD_METHOD              7 (join)
+            110 LOAD_NAME                8 (map)
+            112 LOAD_NAME                9 (chr)
+            114 LOAD_NAME                6 (result)
+            116 CALL_FUNCTION            2
+            118 CALL_METHOD              1
+            120 STORE_NAME              10 (result_text)
+            122 LOAD_CONST              10 (None)
+            124 RETURN_VALUE
+
+Disassembly of <code object <listcomp> at 0x7fac202230e0, file "ori.py", line 52>:
+ 52           0 BUILD_LIST               0
+              2 LOAD_FAST                0 (.0)
+        >>    4 FOR_ITER                12 (to 18)
+              6 STORE_FAST               1 (char)
+              8 LOAD_GLOBAL              0 (ord)
+             10 LOAD_FAST                1 (char)
+             12 CALL_FUNCTION            1
+             14 LIST_APPEND              2
+             16 JUMP_ABSOLUTE            4
+        >>   18 RETURN_VALUE
+
+Disassembly of <code object <listcomp> at 0x7fac20223190, file "ori.py", line 57>:
+ 57           0 BUILD_LIST               0
+              2 LOAD_FAST                0 (.0)
+        >>    4 FOR_ITER                16 (to 22)
+              6 UNPACK_SEQUENCE          2
+              8 STORE_FAST               1 (a)
+             10 STORE_FAST               2 (b)
+             12 LOAD_FAST                1 (a)
+             14 LOAD_FAST                2 (b)
+             16 BINARY_XOR
+             18 LIST_APPEND              2
+             20 JUMP_ABSOLUTE            4
+        >>   22 RETURN_VALUE
