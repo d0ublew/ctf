@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: samehadaku
+  name: samehadaku
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: samehadaku
+  template:
+    metadata:
+      labels:
+        io.kompose.network/samehadakukw-default: "true"
+        io.kompose.service: samehadaku
+    spec:
+      containers:
+        - image: samehadaku
+          name: samehadaku
+          ports:
+            - containerPort: 8000
+              hostPort: 49047
+              protocol: TCP
+      restartPolicy: Always

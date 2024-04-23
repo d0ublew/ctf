@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: action-figures
+  name: action-figures
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: action-figures
+  template:
+    metadata:
+      labels:
+        io.kompose.network/action-figures-default: "true"
+        io.kompose.service: action-figures
+    spec:
+      containers:
+        - image: action-figures
+          name: action-figures
+          ports:
+            - containerPort: 30032
+              hostPort: 30032
+              protocol: TCP
+      restartPolicy: Always
