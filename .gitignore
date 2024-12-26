@@ -8,3 +8,5 @@ node_modules/
 .envrc
 .python-version
 venv/
+.venv/
+.direnv/

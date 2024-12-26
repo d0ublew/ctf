@@ -1,0 +1,6 @@
+services:
+    uap:
+        build: ./challenge
+        ports:
+            - 1340:1340
+        restart: always

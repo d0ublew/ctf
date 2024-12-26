@@ -1,0 +1,6 @@
+services:
+    retro2win:
+        build: ./challenge
+        ports:
+            - 1338:1338
+        restart: always

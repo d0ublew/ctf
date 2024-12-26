@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: retro2win
+  name: retro2win
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: retro2win
+  template:
+    metadata:
+      labels:
+        io.kompose.service: retro2win
+    spec:
+      containers:
+        - image: retro2win
+          name: retro2win
+          ports:
+            - containerPort: 1338
+              hostPort: 1338
+              protocol: TCP
+      restartPolicy: Always

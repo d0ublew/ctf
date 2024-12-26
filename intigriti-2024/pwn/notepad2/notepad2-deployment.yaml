@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: notepad2
+  name: notepad2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: notepad2
+  template:
+    metadata:
+      labels:
+        io.kompose.service: notepad2
+    spec:
+      containers:
+        - image: notepad2
+          name: notepad2
+          ports:
+            - containerPort: 1342
+              hostPort: 1342
+              protocol: TCP
+      restartPolicy: Always

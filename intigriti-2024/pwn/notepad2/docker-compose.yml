@@ -1,0 +1,6 @@
+services:
+    notepad2:
+        build: ./challenge
+        ports:
+            - 1342:1342
+        restart: always

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: notepad2
+  name: notepad2
+spec:
+  ports:
+    - name: "1342"
+      port: 1342
+      targetPort: 1342
+  selector:
+    io.kompose.service: notepad2

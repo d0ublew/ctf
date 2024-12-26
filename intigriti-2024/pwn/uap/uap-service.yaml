@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: uap
+  name: uap
+spec:
+  ports:
+    - name: "1340"
+      port: 1340
+      targetPort: 1340
+  selector:
+    io.kompose.service: uap

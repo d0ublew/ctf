@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: floormat
+  name: floormat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: floormat
+  template:
+    metadata:
+      labels:
+        io.kompose.service: floormat
+    spec:
+      containers:
+        - image: floormat
+          name: floormat
+          ports:
+            - containerPort: 1339
+              hostPort: 1339
+              protocol: TCP
+      restartPolicy: Always

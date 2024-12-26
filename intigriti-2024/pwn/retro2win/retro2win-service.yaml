@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: retro2win
+  name: retro2win
+spec:
+  ports:
+    - name: "1338"
+      port: 1338
+      targetPort: 1338
+  selector:
+    io.kompose.service: retro2win

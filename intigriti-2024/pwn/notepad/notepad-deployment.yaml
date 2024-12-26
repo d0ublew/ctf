@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: notepad
+  name: notepad
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: notepad
+  template:
+    metadata:
+      labels:
+        io.kompose.service: notepad
+    spec:
+      containers:
+        - image: notepad
+          name: notepad
+          ports:
+            - containerPort: 1341
+              hostPort: 1341
+              protocol: TCP
+      restartPolicy: Always

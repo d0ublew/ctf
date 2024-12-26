@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: uap
+  name: uap
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: uap
+  template:
+    metadata:
+      labels:
+        io.kompose.service: uap
+    spec:
+      containers:
+        - image: uap
+          name: uap
+          ports:
+            - containerPort: 1340
+              hostPort: 1340
+              protocol: TCP
+      restartPolicy: Always
