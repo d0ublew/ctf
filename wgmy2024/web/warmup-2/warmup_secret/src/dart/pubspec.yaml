@@ -1,0 +1,7 @@
+name: dart
+
+environment:
+  sdk: ^3.5.3
+
+dependencies:
+  jaguar: ^3.1.4

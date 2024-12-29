@@ -1,0 +1,13 @@
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: default-ratelimit@kubernetescrd
+  hosts:
+    - host: dart.wgmy
+      paths:
+        - path: /
+          pathType: Prefix
+
+env:
+  WGMY_FLAG: flag{test}

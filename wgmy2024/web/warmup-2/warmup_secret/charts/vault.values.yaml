@@ -1,0 +1,19 @@
+server:
+  dev:
+    enabled: true
+  extraEnvironmentVars:
+    WGMY_FLAG: flag{test}
+  postStart:
+    - /bin/sh
+    - -c
+    - >-
+      until vault status; do sleep 1; done
+      && vault secrets enable -path=kv kv-v2
+      && vault kv put kv/flag flag="$WGMY_FLAG"
+      && vault auth enable kubernetes
+      && vault write auth/kubernetes/config kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443"
+      && echo 'path "kv/data/flag" { capabilities = ["read"] }' | vault policy write wgmy -
+      && vault write auth/kubernetes/role/wgmy bound_service_account_names=* bound_service_account_namespaces=* token_policies=wgmy token_ttl=1s
+
+injector:
+  enabled: false

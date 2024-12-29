@@ -1,0 +1,8 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+rpc_url = "http://blockchain.wargames.my:4447/b8b9fa9f-8865-4fcf-b07f-9d4717b0e74f"
+private_key = "0xa53aca07e4d6775e664c65d0f859fc1af748ec8dedb68864aa5fc0ac0ae74a0f"
+
+# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
