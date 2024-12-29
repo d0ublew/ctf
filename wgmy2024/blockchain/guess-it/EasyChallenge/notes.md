@@ -29,3 +29,7 @@ forge build
 cast interface ./out/Setup.sol/Setup.json
 cast interface ./out/GuessIt.sol/EasyChallenge.json
 ```
+
+# References
+
+- https://docs.soliditylang.org/en/latest/internals/layout_in_storage.html#mappings-and-dynamic-arrays
